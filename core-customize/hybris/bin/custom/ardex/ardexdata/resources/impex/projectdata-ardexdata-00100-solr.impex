@@ -1,0 +1,31 @@
+UPDATE GenericItem[processor = de.hybris.platform.commerceservices.impex.impl.ConfigPropertyImportProcessor]; pk[unique = true]
+
+$solrHost1 = $config-ardex.solr.host1
+$solrMode = $config-ardex.solr.mode
+
+$solrIndexingUser = $config-ardex.solr.indexing.user
+$solrIndexingPassword = $config-ardex.solr.indexing.password
+$solrClientUser = $config-ardex.solr.client.user
+$solrClientPassword = $config-ardex.solr.client.password
+
+$serverConfigName = $config-ardex.solr.config.server.name
+
+# remove all solr endpoints before inserting new ones. solr endpoints have no unique attribute, so if for local env
+# new localhost url is created, SolrServerConfig can't find unique solrEndpointUrls by URL (2 localhost), therefore
+# cleanup all data before inserting new one.
+REMOVE SolrEndpointUrl[batchmode = true]; master[unique = true];
+                                        ; true                 ;
+                                        ; false                ;
+
+# create the Solr server configuration
+INSERT_UPDATE SolrServerConfig; name[unique = true]; mode(code); solrQueryMethod(code); embeddedMaster; connectionTimeout; socketTimeout; maxTotalConnections; maxTotalConnectionsPerHostConfig; aliveCheckInterval; tcpNoDelay; indexingConnectionTimeout; indexingSocketTimeout; indexingTcpNoDelay; indexingMaxTotalConnections; indexingMaxTotalConnectionsPerHostConfig; indexingAliveCheckInterval; useMasterNodeExclusivelyForIndexing; username        ; password            ; indexingUsername  ; indexingPassword      ;
+                              ; $serverConfigName  ; $solrMode ; POST                 ; false         ; 8000             ; 5000         ; 100                ; 25                              ; 5000              ; true      ; 8000                     ; 60000                ; true              ; 10                         ; 10                                      ; 5000                      ; false                              ; $solrClientUser ; $solrClientPassword ; $solrIndexingUser ; $solrIndexingPassword ;
+
+INSERT_UPDATE SolrEndpointUrl; solrServerConfig(name)[unique = true]; url[unique = true]; master;
+"#% beforeEach:
+import org.slf4j.LoggerFactory;
+LoggerFactory.getLogger(""ImpExImportReader"").info(""Importing SolrEndpointUrl "" + line.get(2));
+if (line.get(2).startsWith(""$config"")) line.clear();
+"
+                             ; Default                              ; $solrHost1        ; true
+                             ; $serverConfigName                    ; $solrHost1        ; true  ;

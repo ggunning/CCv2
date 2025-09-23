@@ -1,0 +1,4 @@
+plugins {
+    id "de.sybit.grapes.commerce" version "${grapesVersion}"
+    id "de.sybit.grapes.config" version "${grapesVersion}"
+}

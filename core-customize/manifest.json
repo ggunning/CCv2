@@ -1,0 +1,179 @@
+{
+  "$schema": "https://schema.sybit.dev/sap-commerce/ccv2/core-customize_manifest.schema.json",
+  "commerceSuiteVersion": "2211.42",
+  "solrVersion": "9.7",
+  "extensionPacks": [
+    {
+      "name": "hybris-commerce-integrations",
+      "version": "2211.37"
+    }
+  ],
+  "extensions": [
+    "ccv2lfsinstall"
+  ],
+  "useConfig": {
+    "properties": [
+      {
+        "location": "config/_common/local.properties"
+      },
+      {
+        "location": "config/_env_cloud/local.properties"
+      },
+      {
+        "location": "config/_env_cloud-admin/local.properties",
+        "aspect": "admin"
+      },
+      {
+        "location": "config/env_dev/local.properties",
+        "persona": "development"
+      },
+      {
+        "location": "config/env_staging/local.properties",
+        "persona": "staging"
+      },
+      {
+        "location": "config/env_prod/local.properties",
+        "persona": "production"
+      }
+    ],
+    "extensions": {
+      "location": "config/_common/localextensions.xml",
+      "exclude": [
+        "solrserver"
+      ]
+    }
+  },
+  "properties": [
+    {
+      "key": "hac.webroot",
+      "value": "/hac"
+    },
+    {
+      "key": "build.frontend.disable",
+      "value": "true"
+    }
+  ],
+  "aspects": [
+    {
+      "name": "backoffice",
+      "properties": [],
+      "webapps": [
+        {
+          "name": "hac",
+          "contextPath": "/hac"
+        },
+        {
+          "name": "backoffice",
+          "contextPath": "/backoffice"
+        },
+        {
+          "name": "securemediaweb",
+          "contextPath": "/medias"
+        }
+      ]
+    },
+    {
+      "name": "backgroundProcessing",
+      "properties": [
+        {
+          "key": "cluster.node.groups",
+          "value": "backgroundProcessing,integration,yHotfolderCandidate"
+        }
+      ],
+      "webapps": [
+        {
+          "name": "hac",
+          "contextPath": "/hac"
+        },
+        {
+          "name": "securemediaweb",
+          "contextPath": "/medias"
+        },
+        {
+          "name": "odata2webservices",
+          "contextPath": "/odata2webservices"
+        }
+      ]
+    },
+    {
+      "name": "api",
+      "properties": [
+        {
+          "key": "xss.filter.header.X-Frame-Options",
+          "value": ""
+        },
+        {
+          "key": "storefrontContextRoot",
+          "value": ""
+        }
+      ],
+      "webapps": [
+        {
+          "name": "commercewebservices",
+          "contextPath": "/occ"
+        },
+        {
+          "name": "securemediaweb",
+          "contextPath": "/medias"
+        },
+        {
+          "name": "oauth2",
+          "contextPath": "/authorizationserver"
+        },
+        {
+          "name": "adaptivesearchwebservices",
+          "contextPath": "/adaptivesearchwebservices"
+        },
+        {
+          "name": "permissionswebservices",
+          "contextPath": "/permissionswebservices"
+        },
+        {
+          "name": "smartedit",
+          "contextPath": "/smartedit"
+        },
+        {
+          "name": "cmssmartedit",
+          "contextPath": "/cmssmartedit"
+        },
+        {
+          "name": "smarteditwebservices",
+          "contextPath": "/smarteditwebservices"
+        },
+        {
+          "name": "cmssmarteditwebservices",
+          "contextPath": "/cmssmarteditwebservices"
+        },
+        {
+          "name": "cmswebservices",
+          "contextPath": "/cmswebservices"
+        },
+        {
+          "name": "previewwebservices",
+          "contextPath": "/previewwebservices"
+        },
+        {
+          "name": "acceleratorservices",
+          "contextPath": "/acceleratorservices"
+        },
+        {
+          "name": "sybitlocalizationwebservices",
+          "contextPath": "/i18n"
+        },
+        {
+          "name": "assistedservicewebservices",
+          "contextPath": "/assistedservicewebservices"
+        }
+      ]
+    }
+  ],
+  "tests": {
+    "extensions": [],
+    "annotations": [],
+    "packages": []
+  },
+  "webTests": {
+    "extensions": [],
+    "excludedPackages": []
+  }
+}

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+ Copyright (c) 2020 SAP SE or an SAP affiliate company. All rights reserved
+--><extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
+        	
+    
+    <extension abstractclassprefix="Generated" classprefix="Ardexbackoffice" name="ardexbackoffice" usemaven="false">
+		<requires-extension name="pcmbackoffice"/>
+		<requires-extension name="commerceservicesbackoffice"/>
+		<requires-extension name="b2bcommercebackoffice"/>
+		<requires-extension name="cmsbackoffice"/>
+		<requires-extension name="adaptivesearchbackoffice"/>
+		<requires-extension name="sapmodelbackoffice"/>
+		<requires-extension name="acceleratorbackoffice"/>
+		
+                		
+        
+        <requires-extension name="backoffice"/>
+                		
+        
+        <!--PLACEHOLDER_FOR_SASS_REGISTRATION-->
+                		
+        
+        <coremodule generated="true" manager="de.ardex.backoffice.hybrisgen.jalo.ArdexbackofficeManager" packageroot="de.ardex.backoffice.hybrisgen"/>
+                		
+        
+        <meta key="backoffice-module" value="true"/>
+                		
+        
+        	
+    
+    
+</extension>
+        
+
+</extensioninfo>

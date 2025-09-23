@@ -1,0 +1,7 @@
+[SAP Commerce Template Developers]
+* @sybit/innersource/e-commerce-infrastructure
+
+[Members of E-Business Infrastructure Team]
+CODEOWNERS @sybit/innersource/e-commerce-infrastructure
+.gitlab-ci.yml @sybit/innersource/e-commerce-infrastructure
+settings.gradle @sybit/innersource/e-commerce-infrastructure

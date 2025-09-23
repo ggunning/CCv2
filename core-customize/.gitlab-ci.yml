@@ -1,0 +1,5 @@
+---
+
+include:
+  - project: sybit/innersource/e-commerce-infrastructure/gitlab-cicd-pipelines
+    file: /Pipelines/SAP-Commerce/RECOMMENDED.release-flow.gitlab-ci.yml

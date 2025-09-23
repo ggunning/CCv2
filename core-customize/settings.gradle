@@ -1,0 +1,22 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        maven {
+            url "https://gitlab.sybit.dev/api/v4/projects/237/packages/maven"
+            name "GraPES Repository"
+            credentials(HttpHeaderCredentials) {
+                name = 'Deploy-Token'
+                // deploy token with read_package_registry permissions
+                // from https://gitlab.sybit.dev/sybit/commerce/grapes/-/settings/repository
+                value = 'gldt-aCrnauxP_trNidzqszso'
+            }
+            authentication {
+                header(HttpHeaderAuthentication)
+            }
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'ardex-ardex_commerce_demo'

@@ -1,0 +1,13 @@
+{
+  "applications": [
+    {
+      "name": "ardex-storefront",
+      "path": "ardex-storefront",
+      "nodeVersion": "20",
+      "csr": {
+        "webroot": "dist/ardex-storefront/browser/"
+      }
+    }
+  ],
+  "$schema": "https://schema.sybit.dev/sap-commerce/ccv2/js-storefront_manifest.schema.json"
+}

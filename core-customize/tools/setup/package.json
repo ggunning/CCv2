@@ -1,0 +1,20 @@
+{
+  "name": "sap-commerce-project-generator",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "zx index.js",
+    "format": "npx prettier -w ."
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "^0.9.3",
+    "chalk": "^5.3.0",
+    "inquirer": "^12.0.0",
+    "inquirer-search-list": "^1.2.6",
+    "properties-parser": "^0.6.0",
+    "zx": "^8.1.9"
+  },
+  "type": "module",
+  "author": "Sybit GmbH",
+  "license": "UNLICENSED",
+  "private": true
+}

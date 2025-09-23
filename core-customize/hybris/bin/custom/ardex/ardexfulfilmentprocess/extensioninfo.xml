@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+ Copyright (c) 2019 SAP SE or an SAP affiliate company. All rights reserved.
+--><extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
+        	
+    
+    <extension abstractclassprefix="Generated" classprefix="Ardexfulfilmentprocess" managername="ArdexfulfilmentprocessManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="ardexfulfilmentprocess">
+		<requires-extension name="ardexcore"/>
+		
+                		
+        
+        <requires-extension name="acceleratorservices"/>
+                		
+        
+        <requires-extension name="ticketsystem"/>
+                		
+        
+        <coremodule generated="true" manager="de.ardex.fulfilmentprocess.hybrisgen.jalo.ArdexfulfilmentprocessManager" packageroot="de.ardex.fulfilmentprocess.hybrisgen"/>
+                		
+        
+        		
+        
+        
+                	
+    
+    
+</extension>
+        
+
+</extensioninfo>
