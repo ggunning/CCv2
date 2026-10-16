@@ -1,9 +1,13 @@
 {
-    "commerceSuiteVersion": "2211-jdk21.10",
+    "commerceSuiteVersion": "2211-jdk21.20",
     "extensionPacks": [
         {
             "name": "hybris-commerce-integrations",
-            "version": "2211-jdk21.11"
+            "version": "2211-jdk21.16"
+        },
+        {
+            "name": "citizen-engagement-accelerator",
+            "version": "2303-jdk21.3"
         }
     ],
     "enableImageProcessingService": true,

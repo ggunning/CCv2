@@ -20,6 +20,9 @@ eclipsebin
 # NPM packages
 **/node_modules
 
+# NPM auth / registry credentials — NEVER commit (SAP registry token)
+**/.npmrc
+
 # Compiled class file
 *.class
 
