@@ -23,6 +23,18 @@
         "webroot": "dist/b2bspastore/browser/"
       },
       "enabledRepositories": ["spartacus-dev"]
+    },
+    {
+      "name": "apparelstore",
+      "path": "apparelstore",
+      "ssr": {
+        "enabled": true,
+        "path": "dist/apparelstore/server/server.mjs"
+      },
+      "csr": {
+        "webroot": "dist/apparelstore/browser/"
+      },
+      "enabledRepositories": ["spartacus-dev"]
     }
   ],
   "nodeVersion": "22"
