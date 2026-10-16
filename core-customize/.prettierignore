@@ -1,7 +1,0 @@
-hybris/*
-!hybris/bin/
-hybris/bin/*
-!hybris/bin/custom/
-.gradle
-gradle/
-.idea

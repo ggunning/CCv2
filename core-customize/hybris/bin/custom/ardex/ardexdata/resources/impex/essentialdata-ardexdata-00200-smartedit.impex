@@ -1,7 +1,0 @@
-
-### Put spartacus into smart edit whitelist
-INSERT_UPDATE SmartEditConfiguration; key[unique=true]       ; value
-                                    ; whiteListedStorefronts ; "[""https://localhost:4200"",""https://jsapps.cj6bqsou15-ardexitse1-d1-public.model-t.cc.commerce.ondemand.com""]"
-
-INSERT_UPDATE OAuthClientDetails; clientId[unique = true]; resourceIds; scope[mode = append]                            ; authorizedGrantTypes        ; accessTokenValiditySeconds; authorities; clientSecret;
-                                ; smartedit              ; hybris     ; basic,permissionswebservices,previewwebservices ; password,client_credentials ; 3600                      ;            ;             ;

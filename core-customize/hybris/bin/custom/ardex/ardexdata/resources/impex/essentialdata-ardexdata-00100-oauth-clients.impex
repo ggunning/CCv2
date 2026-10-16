@@ -1,9 +1,0 @@
-UPDATE GenericItem[processor = de.hybris.platform.commerceservices.impex.impl.ConfigPropertyImportProcessor]; pk[unique = true]
-$hostUrl = $config-ardex.web.oauth.host
-$webappClient = $config-ardex.web.oauth.client
-$webappSecret = $config-ardex.web.oauth.secret
-$redirectUri = https://$hostUrl/authorizationserver/oauth2_callback
-$oauthUri = https://$hostUrl/authorizationserver/oauth/token
-
-INSERT_UPDATE OAuthClientDetails; clientId[unique = true]; resourceIds; scope ; authorizedGrantTypes                                         ; authorities ; clientSecret  ; registeredRedirectUri;
-                                ; $webappClient          ; hybris     ; basic ; authorization_code,refresh_token,password,client_credentials ; ROLE_CLIENT ; $webappSecret ; $redirectUri         ;
