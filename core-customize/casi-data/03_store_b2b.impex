@@ -28,8 +28,8 @@ INSERT_UPDATE Address;owner(B2BUnit.uid)[unique=true];streetname[unique=true];st
 INSERT_UPDATE B2BCostCenter;code[unique=true];name[lang=$lang];unit(uid);currency(isocode);active
 ;CASI-CC-1000002;CASI Demo Company cost center;$unit;EUR;true
 
-INSERT_UPDATE B2BCustomer;uid[unique=true];originalUid;email;name;customerID;defaultB2BUnit(uid);groups(uid);active
-;casi.buyer@example.com;casi.buyer@example.com;casi.buyer@example.com;Casey Buyer;casi.buyer@example.com;$unit;$unit,b2bcustomergroup;true
+INSERT_UPDATE B2BCustomer;uid[unique=true];originalUid;email;name;customerID;defaultB2BUnit(uid);groups(uid);active;loginDisabled
+;casi.buyer@example.com;casi.buyer@example.com;casi.buyer@example.com;Casey Buyer;casi.buyer@example.com;$unit;$unit,b2bcustomergroup;true;false
 
 # Supernova runs the warehousing/OMS extensions: availability is computed with the store's ATP
 # formula, so without one every non-forced product shows 0 / out of stock (same as powertools).
