@@ -15,6 +15,8 @@
   --cx-color-warning: #b26a00;
   --cx-color-danger: #b3261e;
   --casi-amber: #e8a33d;
+  // Text on the dark header: ~13:1 against --cx-color-dark (the petrol primary is only 2:1 there).
+  --casi-on-dark: #e8f1f3;
   --cx-font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
@@ -26,6 +28,30 @@ body {
 header {
   background: var(--cx-color-dark);
   border-bottom: 3px solid var(--casi-amber);
+
+  // Every text item that sits directly on the dark band is light, not the petrol link colour:
+  // site links (Quick Order, Find a Store, …), Sign In / Register, the site context and theme labels.
+  .SiteContext,
+  .SiteLinks,
+  .SiteLogin,
+  cx-login,
+  cx-site-context-selector,
+  cx-site-theme-switcher {
+    color: var(--casi-on-dark);
+
+    a,
+    a:visited,
+    label,
+    span:not(.cx-visually-hidden) {
+      color: var(--casi-on-dark);
+    }
+
+    a:hover,
+    a:focus-visible {
+      color: var(--casi-amber);
+      text-decoration: underline;
+    }
+  }
 }
 
 .casi-wordmark {
