@@ -30,3 +30,12 @@ INSERT_UPDATE B2BCostCenter;code[unique=true];name[lang=$lang];unit(uid);currenc
 
 INSERT_UPDATE B2BCustomer;uid[unique=true];originalUid;email;name;customerID;defaultB2BUnit(uid);groups(uid);active
 ;casi.buyer@example.com;casi.buyer@example.com;casi.buyer@example.com;Casey Buyer;casi.buyer@example.com;$unit;$unit,b2bcustomergroup;true
+
+# Supernova runs the warehousing/OMS extensions: availability is computed with the store's ATP
+# formula, so without one every non-forced product shows 0 / out of stock (same as powertools).
+UPDATE BaseStore;uid[unique=true];sourcingConfig(code);defaultAtpFormula(code)
+;$storeUid;Hybris_OMS_Config;Default_Formula
+
+# Warehousing only counts stock in warehouses that serve a delivery mode (powertools' do).
+UPDATE Warehouse;code[unique=true];deliveryModes(code)
+;casi_warehouse;standard-net,premium-net

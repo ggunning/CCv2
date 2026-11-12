@@ -1,0 +1,71 @@
+# CASI Shop — B2B site casi-spa and its Solr search (casiIndex). Run after 01, 02 and 03.
+# Search setup follows the Skydoo lessons (LandscapeCommander docs/skydoo/SETUP.md): curated property
+# set, SpEL value-provider parameters, and a DEFAULT free-text template whose fts* switches are TRUE
+# (boosts alone emit no free-text queries). Boosts mirror supernova's powertoolsIndex DEFAULT template.
+
+$site=casi-spa
+$store=casi
+$contentCatalog=casiContentCatalog
+$productCatalog=casiProductCatalog
+$contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Online])[default=$contentCatalog:Online]
+$config=casiIndex
+$type=casiProductType
+$urlPatterns=(?i)^https?://[^/]+(/[^?]*)?\?(.*\&)?(site=$site)(|\&.*)$,(?i)^https?://$site\.[^/]+(|/.*|\?.*)$,(?i)^https?://localhost(:[\d]+)?/rest/.*$,(?i)^https?://[^/]+/$site(|/.*|\?.*|#.*)$
+
+# --- site ---------------------------------------------------------------------
+INSERT_UPDATE CMSSite;uid[unique=true];theme(code);channel(code);stores(uid);contentCatalogs(id);defaultCatalog(id);defaultLanguage(isoCode);urlPatterns;active;previewURL;startingPage(uid,$contentCV);urlEncodingAttributes;dataIsolationEnabled
+;$site;santorini;B2B;$store;$contentCatalog;$productCatalog;en;$urlPatterns;true;/$site;homepage;storefront,language,currency;false
+
+UPDATE CMSSite;uid[unique=true];name[lang=en]
+;$site;"CASI Shop"
+
+# --- Solr facet search config --------------------------------------------------
+INSERT_UPDATE SolrFacetSearchConfig;name[unique=true];description;indexNamePrefix;solrServerConfig(name);solrSearchConfig(description);solrIndexConfig(name);languages(isocode);currencies(isocode);catalogVersions(catalog(id),version)
+;$config;CASI Shop search;casi;Default;Default;Default;en;EUR;$productCatalog:Online
+
+INSERT_UPDATE SolrIndexedType;identifier[unique=true];type(code);variant;solrFacetSearchConfig(name)
+;$type;Product;false;$config
+
+INSERT_UPDATE SolrIndexedProperty;solrIndexedType(identifier)[unique=true];name[unique=true];type(code);fieldValueProvider;valueProviderParameter;facet[default=false];facetType(code);multiValue[default=false];localized[default=false];currency[default=false];sortableType
+;$type;itemtype;string;;;;;;;;
+;$type;code;string;springELValueProvider;code;;;;;;
+;$type;name;text;springELValueProvider;getName(#lang);;;;true;;sortabletext
+;$type;description;text;springELValueProvider;getDescription(#lang);;;;true;;
+;$type;summary;text;springELValueProvider;getSummary(#lang);;;;true;;
+;$type;ean;string;springELValueProvider;ean;;;;;;
+;$type;keywords;text;productKeywordsValueProvider;;;;;true;;
+;$type;priceValue;double;productPriceValueProvider;;;;;;true;
+;$type;price;double;productPriceValueProvider;;true;MultiSelectOr;;;true;
+;$type;img-515Wx515H;string;image515ValueProvider;;;;;;;
+;$type;img-300Wx300H;string;image300ValueProvider;;;;;;;
+;$type;img-96Wx96H;string;image96ValueProvider;;;;;;;
+;$type;img-65Wx65H;string;image65ValueProvider;;;;;;;
+;$type;img-30Wx30H;string;image30ValueProvider;;;;;;;
+;$type;url;string;productUrlValueProvider;;;;;true;;
+;$type;stockLevelStatus;string;productStockLevelStatusValueProvider;;;;;;;
+;$type;inStockFlag;boolean;productInStockFlagValueProvider;;;;;;;
+;$type;allCategories;string;categoryCodeValueProvider;;;;true;;;
+;$type;categoryName;text;categoryNameValueProvider;;;;true;true;;
+;$type;category;string;categoryCodeValueProvider;;true;Refine;true;;;
+;$type;categoryPath;string;categoryPathValueProvider;;true;Refine;true;;;
+
+INSERT_UPDATE SolrIndexerQuery;solrIndexedType(identifier)[unique=true];identifier[unique=true];type(code)[unique=true];injectCurrentDate[default=true];injectCurrentTime[default=true];injectLastIndexTime[default=true];query
+;$type;casi-fullQuery;full;;;;"SELECT {p:PK} FROM {Product AS p JOIN CatalogVersion AS cv ON {p:catalogVersion}={cv:PK} JOIN Catalog AS c ON {cv:catalog}={c:PK}} WHERE {c:id}='casiProductCatalog' AND {cv:version}='Online'"
+;$type;casi-updateQuery;update;;;;"SELECT {p:PK} FROM {Product AS p JOIN CatalogVersion AS cv ON {p:catalogVersion}={cv:PK} JOIN Catalog AS c ON {cv:catalog}={c:PK}} WHERE {c:id}='casiProductCatalog' AND {cv:version}='Online' AND {p:modifiedtime} >= ?lastIndexTime"
+
+# --- free-text search template (switches TRUE, boosts as powertoolsIndex) --------
+INSERT_UPDATE SolrSearchQueryTemplate;name[unique=true];indexedType(identifier)[unique=true];ftsQueryBuilder
+;DEFAULT;$type;defaultFreeTextQueryBuilder
+
+INSERT_UPDATE SolrSearchQueryProperty;indexedProperty(name,solrIndexedType(identifier))[unique=true];searchQueryTemplate(name,indexedType(identifier))[unique=true][default=DEFAULT:$type];ftsQuery[default=false];ftsQueryBoost;ftsPhraseQuery[default=false];ftsPhraseQueryBoost;ftsFuzzyQuery[default=false];ftsFuzzyQueryBoost;ftsWildcardQuery[default=false];ftsWildcardQueryType(code)[default=POSTFIX];ftsWildcardQueryBoost;ftsWildcardQueryMinTermLength
+;code:$type;;;;true;90;true;;true;POSTFIX;45;3
+;ean:$type;;;;true;100;true;;true;POSTFIX;50;3
+;name:$type;;true;50;true;100;true;25;;;;
+;description:$type;;true;25;true;50;true;10;;;;
+;summary:$type;;true;20;true;40;true;10;;;;
+;keywords:$type;;true;20;true;40;true;10;;;;
+;categoryName:$type;;true;20;true;40;true;10;;;;
+
+# --- the store searches casiIndex ----------------------------------------------
+UPDATE BaseStore;uid[unique=true];solrFacetSearchConfiguration(name)
+;$store;$config
