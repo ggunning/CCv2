@@ -73,4 +73,11 @@ store.sapInvoiceEnabled = true
 modelService.save(store)
 out << 'store casi -> ' + store.SAPConfiguration.core_name + ', SAP invoices ' + store.sapInvoiceEnabled
 
+// S/4HANA Order Management sends Currency.sapCode as TransactionCurrency and falls back to USD when it
+// is empty, which S/4 then rejects ("Exchange rate of USD in EUR ... could not be determined").
+def eur = commonI18NService.getCurrency('EUR')
+eur.sapCode = 'EUR'
+modelService.save(eur)
+out << 'EUR.sapCode = ' + eur.sapCode
+
 println out.join('\n')
