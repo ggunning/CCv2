@@ -28,8 +28,10 @@ INSERT_UPDATE Address;owner(B2BUnit.uid)[unique=true];streetname[unique=true];st
 INSERT_UPDATE B2BCostCenter;code[unique=true];name[lang=$lang];unit(uid);currency(isocode);active
 ;CASI-CC-1000002;CASI Demo Company cost center;$unit;EUR;true
 
-INSERT_UPDATE B2BCustomer;uid[unique=true];originalUid;email;name;customerID;defaultB2BUnit(uid);groups(uid);active;loginDisabled
-;casi.buyer@example.com;casi.buyer@example.com;casi.buyer@example.com;Casey Buyer;casi.buyer@example.com;$unit;$unit,b2bcustomergroup;true;false
+# No customerID: S/4HANA Order Management sends it as the order's ContactPerson (a 10-digit S/4 contact
+# person number); BE6 doesn't sync BP contact relationships into SD, so the buyer goes without one.
+INSERT_UPDATE B2BCustomer;uid[unique=true];originalUid;email;name;defaultB2BUnit(uid);groups(uid);active;loginDisabled
+;casi.buyer@example.com;casi.buyer@example.com;casi.buyer@example.com;Casey Buyer;$unit;$unit,b2bcustomergroup;true;false
 
 # Supernova runs the warehousing/OMS extensions: availability is computed with the store's ATP
 # formula, so without one every non-forced product shows 0 / out of stock (same as powertools).
