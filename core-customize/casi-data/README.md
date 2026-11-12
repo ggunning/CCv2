@@ -40,6 +40,10 @@ determined for DE10 (orders stay incomplete for delivery; returns then can't ref
 | `04b_solr.groovy` | search config `casiIndex` saved as one graph; run again with `INDEX = true` to index |
 | `05_casi_retarget.groovy` | CASI navigation, homepage hero, carousels, returns component on the order page |
 | `06_s4_destinations.groovy` | the consumed destinations to S/4 (needs the credential below) |
+| `07_s4om_store_config.groovy` | SAP base store configuration `casiS4Configuration` (S/4OM settings, destination mapping), `EUR.sapCode` |
+| `08_storefront_signin.groovy` | OAuth clients `mobile_android_public[_casi-spa]` and authorization server CORS for the storefront host |
+| `09_checkout_smoke_test.groovy` | B2B checkout as the buyer through the checkout facades; `PLACE_ORDER = true` places an order in S/4 |
+| `10_product_images.py` | product pictures "CASI Ontologie" and "CASI Helping Hands Service": one SVG per image format in `images/` (detail reduced for small sizes); `--upload` sends them to the tenant and re-indexes `casiIndex` |
 
 Passwords are never in these files. LandscapeCommander `scripts/casi_s4_credential.py`, run by a person,
 sets the S/4 credential `casiS4hcBE6Credential` and the buyer's password from `.env`.
