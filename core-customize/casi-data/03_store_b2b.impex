@@ -1,0 +1,32 @@
+# CASI Shop — B2B base store, B2B unit (= S/4 customer) and a test buyer.
+# Run AFTER 02 (content catalog clone), because the CMSSite in 04 points at the store.
+# The buyer gets NO password here: set it in Backoffice (Customers) before signing in.
+
+$storeUid=casi
+$productCatalog=casiProductCatalog
+$lang=en
+# S/4 BE6 customer "CASI Demo Company" (sold-to) = B2B unit uid
+$unit=1000002
+
+INSERT_UPDATE BaseStore;uid[unique=true];catalogs(id);currencies(isocode);net;storelocatorDistanceUnit(code);defaultCurrency(isocode);languages(isocode);defaultLanguage(isocode);deliveryCountries(isocode);billingCountries(isocode);submitOrderProcessCode;paymentProvider;pickupInStoreMode(code);customerAllowedToIgnoreSuggestions;expressCheckoutEnabled;checkoutFlowGroup;createReturnProcessCode;warehouses(code)
+;$storeUid;$productCatalog;EUR;true;km;EUR;en;en;DE,AT,CH,FR,NL,BE,GB;DE,AT,CH,FR,NL,BE,GB;order-process;Mockup;DISABLED;true;false;b2bCheckoutGroup;return-process;casi_warehouse
+
+UPDATE BaseStore;uid[unique=true];name[lang=$lang]
+;$storeUid;"CASI Shop"
+
+INSERT_UPDATE BaseStore2DeliveryModeRel;source(uid)[unique=true];target(code)[unique=true]
+;$storeUid;standard-net
+;$storeUid;premium-net
+
+# --- B2B unit = S/4 sold-to -------------------------------------------------
+INSERT_UPDATE B2BUnit;uid[unique=true];name;locName[lang=$lang];active;groups(uid)
+;$unit;CASI Demo Company;CASI Demo Company;true;
+
+INSERT_UPDATE Address;owner(B2BUnit.uid)[unique=true];streetname[unique=true];streetnumber;postalcode;town;country(isocode);company;shippingAddress;billingAddress;contactAddress;visibleInAddressBook
+;$unit;Dietmar-Hopp-Allee;16;69190;Walldorf;DE;CASI Demo Company;true;true;true;true
+
+INSERT_UPDATE B2BCostCenter;code[unique=true];name[lang=$lang];unit(uid);currency(isocode);active
+;CASI-CC-1000002;CASI Demo Company cost center;$unit;EUR;true
+
+INSERT_UPDATE B2BCustomer;uid[unique=true];originalUid;email;name;customerID;defaultB2BUnit(uid);groups(uid);active
+;casi.buyer@example.com;casi.buyer@example.com;casi.buyer@example.com;Casey Buyer;casi.buyer@example.com;$unit;$unit,b2bcustomergroup;true

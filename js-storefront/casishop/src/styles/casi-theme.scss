@@ -1,0 +1,110 @@
+// CASI Shop theme: petrol + warm amber on a cool off-white, built on the Spartacus
+// (santorini) CSS variables so every stock component picks it up.
+:root {
+  --cx-color-primary: #0f5c6e;
+  --cx-color-primary-accent: #0a4452;
+  --cx-color-secondary: #4b5d66;
+  --cx-color-text: #14232a;
+  --cx-color-background: #f4f8f9;
+  --cx-color-inverse: #ffffff;
+  --cx-color-light: #e3edf0;
+  --cx-color-medium: #c3d3d8;
+  --cx-color-dark: #10262e;
+  --cx-color-success: #2e7d4f;
+  --cx-color-info: #0f5c6e;
+  --cx-color-warning: #b26a00;
+  --cx-color-danger: #b3261e;
+  --casi-amber: #e8a33d;
+  --cx-font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background: var(--cx-color-background);
+}
+
+// Header band: dark petrol with an amber rule underneath.
+header {
+  background: var(--cx-color-dark);
+  border-bottom: 3px solid var(--casi-amber);
+}
+
+.casi-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--cx-color-inverse);
+  text-decoration: none;
+  font-size: 1.35rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--cx-color-inverse);
+    text-decoration: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--casi-amber);
+    outline-offset: 4px;
+  }
+
+  &__mark {
+    display: inline-grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 6px;
+    background: var(--casi-amber);
+    color: var(--cx-color-dark);
+    font-weight: 800;
+  }
+
+  &__name strong {
+    color: var(--casi-amber);
+    font-weight: 700;
+  }
+}
+
+// Home hero (CMS paragraph with class "casi-hero", see core-customize/casi-data).
+.casi-hero {
+  display: grid;
+  gap: 1rem;
+  padding-block: 3rem;
+  padding-inline: max(16px, 4vw);
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--cx-color-primary) 0%, var(--cx-color-dark) 100%);
+  color: var(--cx-color-inverse);
+
+  h1 {
+    margin: 0;
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    text-wrap: balance;
+  }
+
+  p {
+    max-width: 60ch;
+    margin: 0;
+    color: var(--cx-color-light);
+  }
+
+  a {
+    justify-self: start;
+    padding: 0.65rem 1.4rem;
+    border-radius: 6px;
+    background: var(--casi-amber);
+    color: var(--cx-color-dark);
+    font-weight: 700;
+    text-decoration: none;
+  }
+}
+
+// Primary buttons: solid petrol, amber focus ring.
+.btn-primary {
+  background-color: var(--cx-color-primary);
+  border-color: var(--cx-color-primary);
+
+  &:focus-visible {
+    box-shadow: 0 0 0 3px var(--casi-amber);
+  }
+}

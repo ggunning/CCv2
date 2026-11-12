@@ -167,6 +167,14 @@
             "value": "${ccv2.services.jsapps.url.0}"
         },
         {
+            "key": "website.casi-spa.http",
+            "value": "${ccv2.services.jsapps.url.0}"
+        },
+        {
+            "key": "website.casi-spa.https",
+            "value": "${ccv2.services.jsapps.url.0}"
+        },
+        {
             "key": "b2bpunchout.order.verification.enabled",
             "value": "true"
         },

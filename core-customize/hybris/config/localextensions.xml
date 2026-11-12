@@ -263,6 +263,18 @@
   <extension name='cloudhotfolder' />
 
 
+<!-- CASI: SAP S/4HANA Order Management integration (direct OData to S/4HANA Cloud, no CPI) -->
+<!-- https://help.sap.com/docs/SAP_COMMERCE_INTEGRATIONS/47ad58c1a27447949aad8addbee46fca/d39c858063fa47db9c08fc8793563421.html -->
+  <extension name='sapcore' />
+  <extension name='sapcoreconfiguration' />
+  <extension name='sapmodel' />
+  <extension name='sapcoreconfigurationbackoffice' />
+  <extension name='sapmodelbackoffice' />
+  <extension name='saps4omservices' />
+  <extension name='saps4omfacades' />
+  <extension name='saps4ombackoffice' />
+  <extension name='saps4omocc' />
+
 <!-- Configuring Required Extensions and AddOns for SAP Commerce integration with SAP Cloud Platform Integration -->
 <!-- https://help.sap.com/viewer/product/SAP_COMMERCE_INTEGRATIONS/latest -->
   <!--<extension name='sapcpiadapter'/>

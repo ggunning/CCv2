@@ -1,0 +1,58 @@
+# CASI Shop — product catalog, products, prices, stock.
+# Product codes = S/4HANA product IDs in BE6 (my4102318); unit "pieces" = S/4 EA.
+# Applied through HAC (ImpEx console) after the S/4OM build is deployed. Re-runnable (INSERT_UPDATE).
+
+$catalog=casiProductCatalog
+$cvStaged=catalogVersion(catalog(id[default=$catalog]),version[default='Staged'])[unique=true,default=$catalog:Staged]
+$cvOnline=catalogVersion(catalog(id[default=$catalog]),version[default='Online'])[unique=true,default=$catalog:Online]
+$lang=en
+
+INSERT_UPDATE Catalog;id[unique=true];name[lang=$lang];defaultCatalog
+;$catalog;CASI Product Catalog;false
+
+INSERT_UPDATE CatalogVersion;catalog(id)[unique=true];version[unique=true];active;languages(isoCode)
+;$catalog;Staged;false;en
+;$catalog;Online;true;en
+
+INSERT_UPDATE Vendor;code[unique=true];name[lang=$lang]
+;casi;CASI
+
+INSERT_UPDATE Warehouse;code[unique=true];name[lang=$lang];vendor(code);default
+;casi_warehouse;CASI Warehouse Walldorf;casi;true
+
+# --- categories (Staged + Online) -----------------------------------------
+INSERT_UPDATE Category;code[unique=true];name[lang=$lang];description[lang=$lang];$cvStaged
+;casi-all;All products;Everything in the CASI Shop
+;casi-ontologies;Ontologies;Ready-made business ontologies
+;casi-services;Service plans;Support and update plans
+
+INSERT_UPDATE Category;code[unique=true];name[lang=$lang];description[lang=$lang];$cvOnline
+;casi-all;All products;Everything in the CASI Shop
+;casi-ontologies;Ontologies;Ready-made business ontologies
+;casi-services;Service plans;Support and update plans
+
+INSERT_UPDATE CategoryCategoryRelation;source(code,$cvStaged)[unique=true];target(code,$cvStaged)[unique=true]
+;casi-all;casi-ontologies
+;casi-all;casi-services
+INSERT_UPDATE CategoryCategoryRelation;source(code,$cvOnline)[unique=true];target(code,$cvOnline)[unique=true]
+;casi-all;casi-ontologies
+;casi-all;casi-services
+
+# --- products (Staged + Online) -------------------------------------------
+INSERT_UPDATE Product;code[unique=true];name[lang=$lang];summary[lang=$lang];description[lang=$lang];unit(code);approvalStatus(code);supercategories(code,$cvStaged);ean;$cvStaged
+;CASI-ONTOLOGY;Basic Ontology;A ready-to-use business ontology on physical media.;"The Basic Ontology gives your team a shared vocabulary for customers, products, orders and returns: classes, relations and example data, delivered as a boxed set with printed reference and USB media.";pieces;approved;casi-all,casi-ontologies;4260000000011
+;CASI-ONTOLOGY-PLAN;Basic Ontology Service Plan (1 year);Updates and expert support for the Basic Ontology.;"One year of quarterly ontology updates, schema change notes and expert support by e-mail for your Basic Ontology.";pieces;approved;casi-all,casi-services;4260000000028
+
+INSERT_UPDATE Product;code[unique=true];name[lang=$lang];summary[lang=$lang];description[lang=$lang];unit(code);approvalStatus(code);supercategories(code,$cvOnline);ean;$cvOnline
+;CASI-ONTOLOGY;Basic Ontology;A ready-to-use business ontology on physical media.;"The Basic Ontology gives your team a shared vocabulary for customers, products, orders and returns: classes, relations and example data, delivered as a boxed set with printed reference and USB media.";pieces;approved;casi-all,casi-ontologies;4260000000011
+;CASI-ONTOLOGY-PLAN;Basic Ontology Service Plan (1 year);Updates and expert support for the Basic Ontology.;"One year of quarterly ontology updates, schema change notes and expert support by e-mail for your Basic Ontology.";pieces;approved;casi-all,casi-services;4260000000028
+
+# --- prices (B2B store is net) --------------------------------------------
+INSERT_UPDATE PriceRow;productId[unique=true];currency(isocode)[unique=true];price;unit(code[default=pieces]);net[default=true];minqtd[default=1]
+;CASI-ONTOLOGY;EUR;990
+;CASI-ONTOLOGY-PLAN;EUR;240
+
+# --- stock (the plan is a service: give it a large available amount) -------
+INSERT_UPDATE StockLevel;productCode[unique=true];warehouse(code)[unique=true];available;inStockStatus(code)
+;CASI-ONTOLOGY;casi_warehouse;500;notSpecified
+;CASI-ONTOLOGY-PLAN;casi_warehouse;99999;forceInStock

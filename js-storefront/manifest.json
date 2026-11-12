@@ -10,7 +10,9 @@
       "csr": {
         "webroot": "dist/spartacusstore/browser/"
       },
-      "enabledRepositories": ["spartacus-dev"]
+      "enabledRepositories": [
+        "spartacus-dev"
+      ]
     },
     {
       "name": "b2bspastore",
@@ -22,7 +24,9 @@
       "csr": {
         "webroot": "dist/b2bspastore/browser/"
       },
-      "enabledRepositories": ["spartacus-dev"]
+      "enabledRepositories": [
+        "spartacus-dev"
+      ]
     },
     {
       "name": "apparelstore",
@@ -34,7 +38,23 @@
       "csr": {
         "webroot": "dist/apparelstore/browser/"
       },
-      "enabledRepositories": ["spartacus-dev"]
+      "enabledRepositories": [
+        "spartacus-dev"
+      ]
+    },
+    {
+      "name": "casishop",
+      "path": "casishop",
+      "ssr": {
+        "enabled": true,
+        "path": "dist/casishop/server/server.mjs"
+      },
+      "csr": {
+        "webroot": "dist/casishop/browser/"
+      },
+      "enabledRepositories": [
+        "spartacus-dev"
+      ]
     }
   ],
   "nodeVersion": "22"
