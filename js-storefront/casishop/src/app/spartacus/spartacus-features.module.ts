@@ -82,6 +82,7 @@ import { ProductConfiguratorFeatureModule } from './features/product-configurato
 import { S4omFeatureModule } from './features/s4om/s4om-feature.module';
 import { RequestedDeliveryDateFeatureModule } from './features/requested-delivery-date/requested-delivery-date-feature.module';
 import { PdfInvoicesFeatureModule } from './features/pdf-invoices/pdf-invoices-feature.module';
+import { CasiReturnsModule } from '../casi/casi-returns.module';
 
 @NgModule({
   declarations: [],
@@ -165,6 +166,8 @@ import { PdfInvoicesFeatureModule } from './features/pdf-invoices/pdf-invoices-f
     S4omFeatureModule,
     RequestedDeliveryDateFeatureModule,
     PdfInvoicesFeatureModule,
+    // CASI: S/4 customer returns on the order details page (casireturnsocc)
+    CasiReturnsModule,
   ],
   providers: [
     provideFeatureToggles({

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Imported into the commercewebservices web context by
+     <import resource="classpath*:/occ/v2/*occ/web/spring/*-web-spring.xml"/> -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="casiS4ReturnsController" class="com.casi.returnsocc.controllers.S4ReturnsController">
+        <property name="userService" ref="userService"/>
+        <property name="s4Client" ref="casiS4ODataClient"/>
+    </bean>
+</beans>

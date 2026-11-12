@@ -274,6 +274,8 @@
   <extension name='saps4omfacades' />
   <extension name='saps4ombackoffice' />
   <extension name='saps4omocc' />
+  <!-- CASI custom: S/4 customer returns for S/4OM orders over OCC (bin/custom/casireturnsocc) -->
+  <extension name='casireturnsocc' />
 
 <!-- Configuring Required Extensions and AddOns for SAP Commerce integration with SAP Cloud Platform Integration -->
 <!-- https://help.sap.com/viewer/product/SAP_COMMERCE_INTEGRATIONS/latest -->

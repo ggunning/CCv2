@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Calls S/4HANA OData V2 through a ConsumedDestination (URL + Basic credential + csrfURL). -->
+    <bean id="casiS4ODataClient" class="com.casi.returnsocc.s4.S4ODataClient">
+        <property name="flexibleSearchService" ref="flexibleSearchService"/>
+    </bean>
+</beans>

@@ -108,3 +108,98 @@ header {
     box-shadow: 0 0 0 3px var(--casi-amber);
   }
 }
+
+// Returns section on the order details page (casi-s4-returns).
+.casi-returns {
+  display: grid;
+  gap: 1rem;
+  margin-block: 2rem;
+  padding: 1.25rem;
+  border: 1px solid var(--cx-color-medium);
+  border-radius: 8px;
+  background: var(--cx-color-inverse);
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  &__head,
+  &__actions,
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__head {
+    justify-content: space-between;
+  }
+
+  &__actions {
+    justify-content: flex-end;
+  }
+
+  &__hint,
+  &__empty,
+  &__code {
+    color: var(--cx-color-secondary);
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 0.5rem;
+      border-bottom: 1px solid var(--cx-color-light);
+      text-align: start;
+      vertical-align: middle;
+    }
+
+    td:nth-child(2) {
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  &__name {
+    display: block;
+    font-weight: 600;
+  }
+
+  &__code {
+    font-size: 0.85rem;
+  }
+
+  &__qty {
+    max-width: 6rem;
+  }
+
+  &__list {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__item {
+    padding: 0.75rem 1rem;
+    border-inline-start: 4px solid var(--casi-amber);
+    background: var(--cx-color-background);
+  }
+
+  &__status {
+    padding: 0.1rem 0.6rem;
+    border-radius: 999px;
+    background: var(--cx-color-light);
+    font-size: 0.85rem;
+  }
+
+  &__entries {
+    margin: 0.4rem 0 0;
+    padding-inline-start: 1.1rem;
+  }
+}

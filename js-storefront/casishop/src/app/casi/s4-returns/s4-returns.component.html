@@ -1,0 +1,66 @@
+@if (order$ | async; as order) {
+  <section class="casi-returns" aria-labelledby="casi-returns-title">
+    <div class="casi-returns__head">
+      <h2 id="casi-returns-title">Returns</h2>
+      @if (!formOpen()) {
+        <button type="button" class="btn btn-secondary" (click)="openForm(order)">Request a return</button>
+      }
+    </div>
+
+    @if (formOpen()) {
+      <form class="casi-returns__form" (ngSubmit)="submit(order)">
+        <p class="casi-returns__hint">Choose how many of each item to send back. The return is created in SAP S/4HANA.</p>
+        <table class="casi-returns__table">
+          <thead>
+            <tr><th scope="col">Item</th><th scope="col">Ordered</th><th scope="col">Return</th></tr>
+          </thead>
+          <tbody>
+            @for (line of lines; track line.product; let i = $index) {
+              <tr>
+                <td>
+                  <span class="casi-returns__name">{{ line.name }}</span>
+                  <span class="casi-returns__code">{{ line.product }}</span>
+                </td>
+                <td>{{ line.ordered }}</td>
+                <td>
+                  <label class="visually-hidden" [for]="'casi-return-qty-' + i">Quantity to return of {{ line.name }}</label>
+                  <input [id]="'casi-return-qty-' + i" class="form-control casi-returns__qty" type="number" min="0"
+                         [max]="line.ordered" [name]="'qty' + i" [(ngModel)]="line.quantity" />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <div class="casi-returns__actions">
+          <button type="button" class="btn btn-tertiary" (click)="formOpen.set(false)">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="!hasSelection() || submitting()">
+            {{ submitting() ? 'Requesting…' : 'Request return' }}
+          </button>
+        </div>
+      </form>
+    }
+
+    @if (returns$ | async; as returns) {
+      @if (returns.length) {
+        <ul class="casi-returns__list">
+          @for (ret of returns; track ret.code) {
+            <li class="casi-returns__item">
+              <div class="casi-returns__meta">
+                <strong>Return {{ ret.code }}</strong>
+                <span class="casi-returns__status">{{ statusText(ret.processStatus) }}</span>
+                @if (ret.created) { <span>{{ ret.created | date: 'mediumDate' }}</span> }
+              </div>
+              <ul class="casi-returns__entries">
+                @for (entry of ret.entries; track $index) {
+                  <li>{{ entry.quantity }} × {{ entry.description || entry.product }}</li>
+                }
+              </ul>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="casi-returns__empty">No returns for this order yet.</p>
+      }
+    }
+  </section>
+}

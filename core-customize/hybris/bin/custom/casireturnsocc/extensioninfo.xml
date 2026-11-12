@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+ CASI: returns for SAP S/4HANA Order Management orders, without CPI.
+ OCC extension (name ends in "occ"): its web-spring.xml under resources/occ/v2/casireturnsocc/web/spring
+ is imported into the commercewebservices web context (help.sap.com: "Creating an OCC Extension").
+-->
+<extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
+    <extension abstractclassprefix="Generated" classprefix="Casireturnsocc" description="CASI: S/4HANA customer returns over OCC (no CPI)"
+               managername="CasireturnsoccManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="casireturnsocc">
+        <requires-extension name="commercewebservices"/>
+        <requires-extension name="apiregistryservices"/>
+        <requires-extension name="b2bcommerce"/>
+        <coremodule generated="true" manager="de.hybris.platform.jalo.extension.GenericManager" packageroot="com.casi.returnsocc"/>
+        <meta key="classpathgen" value="false"/>
+    </extension>
+</extensioninfo>
