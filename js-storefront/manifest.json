@@ -55,6 +55,34 @@
       "enabledRepositories": [
         "spartacus-dev"
       ]
+    },
+    {
+      "name": "dynamicb2cstore",
+      "path": "dynamicb2cstore",
+      "ssr": {
+        "enabled": true,
+        "path": "dist/dynamicb2cstore/server/server.mjs"
+      },
+      "csr": {
+        "webroot": "dist/dynamicb2cstore/browser/"
+      },
+      "enabledRepositories": [
+        "spartacus-dev"
+      ]
+    },
+    {
+      "name": "dynamicb2bstore",
+      "path": "dynamicb2bstore",
+      "ssr": {
+        "enabled": true,
+        "path": "dist/dynamicb2bstore/server/server.mjs"
+      },
+      "csr": {
+        "webroot": "dist/dynamicb2bstore/browser/"
+      },
+      "enabledRepositories": [
+        "spartacus-dev"
+      ]
     }
   ],
   "nodeVersion": "22"
