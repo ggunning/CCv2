@@ -265,6 +265,8 @@
   <extension name='saps4omocc' />
   <!-- CASI custom: S/4 customer returns for S/4OM orders over OCC (bin/custom/casireturnsocc) -->
   <extension name='casireturnsocc' />
+  <!-- Sodastream custom: sample service interface over OCC with a test page (bin/custom/sodastreamocc) -->
+  <extension name='sodastreamocc' />
 
 <!-- Configuring Required Extensions and AddOns for SAP Commerce integration with SAP Cloud Platform Integration -->
 <!-- https://help.sap.com/viewer/product/SAP_COMMERCE_INTEGRATIONS/latest -->

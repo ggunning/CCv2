@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+ Sodastream: a minimal custom service (SodastreamService) exposed over OCC, plus a server-rendered
+ test page to check the extension is deployed and wired.
+ OCC extension (name ends in "occ"): resources/occ/v2/sodastreamocc/web/spring/*-web-spring.xml is
+ imported into the commercewebservices web context; resources/sodastreamocc-spring.xml is loaded
+ into the core context via sodastreamocc.application-context (project.properties).
+-->
+<extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
+    <extension abstractclassprefix="Generated" classprefix="Sodastreamocc" description="Sodastream: sample service interface over OCC with a test page"
+               managername="SodastreamoccManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="sodastreamocc">
+        <requires-extension name="commercewebservices"/>
+        <coremodule generated="true" manager="de.hybris.platform.jalo.extension.GenericManager" packageroot="com.sodastream.occ"/>
+        <meta key="classpathgen" value="false"/>
+    </extension>
+</extensioninfo>
