@@ -49,7 +49,7 @@
     "properties": [
         {
             "key": "lang.packs",
-            "value": "de,en,ja,zh"
+            "value": "de,en,es,es_CO,fr,it,ja,ko,pl,pt,ru,zh,zh_TW,hi,id,cs,hu"
         },
         {
             "key": "endpoint.hac.platform.init.disabled",
