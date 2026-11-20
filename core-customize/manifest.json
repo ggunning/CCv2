@@ -160,6 +160,10 @@
             "value": "${ccv2.services.jsapps.url.0}"
         },
         {
+            "key": "authserver.oauthclientdetails.loginpageuri.allowed.hosts",
+            "value": "${ccv2.services.jsapps.url.0},${ccv2.services.jsapps.url.1},${ccv2.services.jsapps.url.2},${ccv2.services.jsapps.url.3},${ccv2.services.jsapps.url.4},${ccv2.services.jsapps.url.5},${ccv2.services.jsapps.url.6},${ccv2.services.jsapps.url.7},${ccv2.services.jsapps.url.8},${ccv2.services.jsapps.url.9},http://localhost:4200"
+        },
+        {
             "key": "b2bpunchout.order.verification.enabled",
             "value": "true"
         },
