@@ -83,6 +83,20 @@
       "enabledRepositories": [
         "spartacus-dev"
       ]
+    },
+    {
+      "name": "pulsestore",
+      "path": "pulsestore",
+      "ssr": {
+        "enabled": true,
+        "path": "dist/pulsestore/server/server.mjs"
+      },
+      "csr": {
+        "webroot": "dist/pulsestore/browser/"
+      },
+      "enabledRepositories": [
+        "spartacus-dev"
+      ]
     }
   ],
   "nodeVersion": "22"

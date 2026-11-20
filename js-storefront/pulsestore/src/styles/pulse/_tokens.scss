@@ -1,0 +1,146 @@
+// The two brand colours live on <html>: the CMS overrides them there at run time (a paragraph
+// with the class `pulse-theme`, see PulseParagraphComponent), so one build serves every brand.
+:root {
+  --pulse-accent: #5b3df5;
+  --pulse-pop: #d7ff3e;
+}
+
+body.pulse {
+  --pulse-ink: #0e0e10;
+  --pulse-paper: #f4f2ec;
+  --pulse-card: #ffffff;
+  --pulse-sand: #e9e6dc;
+  --pulse-muted: #6a6862;
+  --pulse-line: rgba(14, 14, 16, 0.12);
+  --pulse-accent-soft: color-mix(in srgb, var(--pulse-accent) 14%, var(--pulse-paper));
+  --pulse-pop-soft: color-mix(in srgb, var(--pulse-pop) 42%, var(--pulse-paper));
+
+  --pulse-radius: 24px;
+  --pulse-radius-s: 14px;
+  --pulse-max: 1360px;
+  --pulse-gutter: clamp(16px, 3.2vw, 44px);
+  --pulse-gap: clamp(12px, 1.4vw, 20px);
+  --pulse-section: clamp(48px, 7vw, 104px);
+
+  --pulse-font: 'Segoe UI Variable Display', 'SF Pro Display', 'Inter', 'Helvetica Neue', 'Segoe UI', system-ui,
+    sans-serif;
+  --pulse-mono: ui-monospace, 'Cascadia Code', 'SF Mono', Menlo, Consolas, monospace;
+  --pulse-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  // Spartacus reads these everywhere (buttons, links, focus rings, borders, text)
+  --cx-color-primary: var(--pulse-ink);
+  --cx-color-primary-accent: var(--pulse-accent);
+  --cx-color-secondary: var(--pulse-muted);
+  --cx-color-text: var(--pulse-ink);
+  --cx-color-inverse: #ffffff;
+  --cx-color-background: var(--pulse-paper);
+  --cx-color-light: var(--pulse-sand);
+  --cx-color-medium: #cfccc2;
+  --cx-color-dark: var(--pulse-muted);
+  --cx-color-visual-focus: var(--pulse-accent);
+  --cx-color-border-focus: var(--pulse-accent);
+  --cx-color-success: #1f8a4c;
+  --cx-font-family: var(--pulse-font);
+  --cx-buttons-border-radius: 999px;
+  --cx-page-width-max: var(--pulse-max);
+
+  background: var(--pulse-paper);
+  color: var(--pulse-ink);
+  font-family: var(--pulse-font);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+
+  cx-storefront {
+    background: var(--pulse-paper);
+  }
+
+  ::selection {
+    background: var(--pulse-pop);
+    color: var(--pulse-ink);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--pulse-font);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: inherit;
+  }
+
+  // small labels: eyebrows, counters, prices
+  small,
+  .pulse-rich > small {
+    font-family: var(--pulse-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+}
+
+// The heartbeat dot in front of an eyebrow: the one recurring motif of the theme.
+@mixin pulse-dot($size: 8px) {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  &::before {
+    content: '';
+    width: $size;
+    height: $size;
+    border-radius: 50%;
+    background: var(--pulse-accent);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--pulse-accent) 60%, transparent);
+    animation: pulse-beat 1.8s ease-out infinite;
+    flex: none;
+  }
+}
+
+@keyframes pulse-beat {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--pulse-accent) 55%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+
+@keyframes pulse-run {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes pulse-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(1.5deg);
+  }
+}
+
+@keyframes pulse-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.pulse *,
+  body.pulse *::before,
+  body.pulse *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

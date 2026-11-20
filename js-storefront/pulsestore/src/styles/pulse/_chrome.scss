@@ -1,0 +1,1007 @@
+// What is on every page: ticker, header, menu, search, perks, footer.
+body.pulse {
+  $bar: 76px; // height of the main header row
+  $ticker: 36px;
+
+  // ---------------------------------------------------------------- header
+  cx-storefront > header {
+    position: sticky;
+    // the ticker scrolls away, the bar below it stays
+    top: -$ticker;
+    z-index: 30;
+    background: color-mix(in srgb, var(--pulse-paper) 80%, transparent);
+    backdrop-filter: blur(16px) saturate(1.5);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    border-bottom: 1px solid var(--pulse-line);
+    color: var(--pulse-ink);
+
+    cx-page-layout.header {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) minmax(180px, 290px) auto auto auto;
+      align-items: center;
+      column-gap: clamp(10px, 1.4vw, 22px);
+      max-width: none;
+      margin: 0;
+      padding: 0 var(--pulse-gutter);
+
+      > cx-page-slot {
+        display: flex;
+        align-items: center;
+        flex: none;
+        width: auto;
+        min-height: $bar;
+        margin: 0;
+        padding: 0;
+        min-width: 0;
+      }
+
+      > .PulseTheme {
+        display: none;
+      }
+
+      > .PulseTicker {
+        grid-column: 1 / -1;
+        display: block;
+        min-height: $ticker;
+        margin-inline: calc(-1 * var(--pulse-gutter));
+      }
+
+      > .SiteContext:not(:has(select)) {
+        display: none;
+      }
+
+      // always at the right edge, also on the quiet sign-in and checkout header
+      > .MiniCart {
+        grid-column: -2 / -1;
+        justify-content: flex-end;
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------- ticker
+  pulse-paragraph.pulse-ticker {
+    display: block;
+    height: $ticker;
+    background: var(--pulse-ink);
+    color: #fff;
+    overflow: hidden;
+
+    .pulse-ticker__track {
+      display: flex;
+      width: max-content;
+      height: 100%;
+
+      &:hover .pulse-ticker__run {
+        animation-play-state: paused;
+      }
+    }
+
+    .pulse-ticker__run {
+      display: flex;
+      align-items: center;
+      flex: none;
+      min-width: 100vw;
+      justify-content: space-around;
+      animation: pulse-run 38s linear infinite;
+    }
+
+    span {
+      display: inline-flex;
+      align-items: center;
+      gap: 28px;
+      padding-left: 28px;
+      font-family: var(--pulse-mono);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+
+      &::after {
+        content: '✦';
+        color: var(--pulse-pop);
+        font-size: 13px;
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------- logo
+  pulse-banner.pulse-logo {
+    display: block;
+
+    a {
+      display: block;
+    }
+
+    img {
+      display: block;
+      height: 38px;
+      width: auto;
+      max-width: 46vw;
+      transition: transform 0.3s var(--pulse-ease);
+    }
+
+    a:hover img {
+      transform: scale(1.04) rotate(-1.5deg);
+    }
+  }
+
+  // ---------------------------------------------------------------- menu (desktop: pills with a floating panel)
+  @media (min-width: 992px) {
+    header cx-page-slot.NavigationBar {
+      justify-content: center;
+      overflow: visible;
+      background: transparent;
+
+      cx-category-navigation,
+      cx-navigation-ui {
+        display: block;
+        min-width: 0;
+        background: transparent;
+      }
+
+      cx-navigation-ui.flyout {
+        > nav > ul {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 2px;
+          max-height: 46px;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+          list-style: none;
+
+          &:has(li:hover),
+          &:has(li:focus-within) {
+            overflow: visible;
+          }
+        }
+
+        // one pill per entry: the link and, when there is a sub-menu, its chevron button
+        > nav > ul > li {
+          position: relative;
+          display: flex;
+          align-items: center;
+          padding: 0;
+          border-radius: 999px;
+          color: var(--pulse-ink);
+          transition:
+            background 0.2s,
+            color 0.2s;
+
+          &.back {
+            display: none;
+          }
+
+          &:hover,
+          &:focus-within,
+          &.is-open {
+            background: var(--pulse-ink);
+            color: #fff;
+          }
+
+          > cx-generic-link a,
+          > button,
+          > span {
+            display: inline-flex;
+            align-items: center;
+            margin: 0;
+            padding: 11px 15px;
+            border: 0;
+            border-radius: 999px;
+            background: transparent;
+            color: inherit;
+            font-size: 14.5px;
+            font-weight: 650;
+            line-height: 1.5;
+            letter-spacing: -0.01em;
+            text-decoration: none;
+            text-transform: none;
+            white-space: nowrap;
+            cursor: pointer;
+          }
+
+          > cx-generic-link:not(:last-child) a {
+            padding-right: 4px;
+          }
+
+          > cx-generic-link + button {
+            padding-left: 4px;
+            padding-right: 13px;
+          }
+
+          > button cx-icon,
+          > span cx-icon {
+            margin: 0;
+            padding: 0;
+            font-size: 10px;
+            color: inherit;
+            opacity: 0.7;
+            transition: transform 0.25s var(--pulse-ease);
+          }
+
+          &:hover > button cx-icon,
+          &.is-open > button cx-icon {
+            transform: rotate(180deg);
+          }
+
+          // the sub-menu opens on hover as well as on its button
+          &:hover > .wrapper,
+          &:focus-within > .wrapper,
+          &.is-open > .wrapper {
+            display: block;
+            visibility: visible;
+            opacity: 1;
+          }
+
+          // the panel
+          > .wrapper {
+            position: absolute;
+            left: 0;
+            top: 100%;
+            z-index: 40;
+            min-width: 240px;
+            margin-top: 8px;
+            padding: 14px;
+            border: 1px solid var(--pulse-line);
+            border-radius: var(--pulse-radius-s);
+            background: var(--pulse-card);
+            color: var(--pulse-ink);
+            box-shadow: 0 30px 60px -30px rgba(14, 14, 16, 0.4);
+
+            // bridge over the gap, so the pointer does not lose the panel
+            &::before {
+              content: '';
+              position: absolute;
+              inset: -10px 0 auto;
+              height: 10px;
+            }
+
+            ul,
+            .childs {
+              display: block;
+              margin: 0;
+              padding: 0;
+              list-style: none;
+            }
+
+            cx-generic-link a {
+              display: block;
+              padding: 9px 12px;
+              border-radius: 10px;
+              color: var(--pulse-ink);
+              font-size: 14.5px;
+              font-weight: 550;
+              text-decoration: none;
+              white-space: nowrap;
+
+              &:hover,
+              &:focus {
+                background: var(--pulse-paper);
+                color: var(--pulse-accent);
+              }
+            }
+
+            // "shop all" row some menus add
+            > cx-generic-link a {
+              font-weight: 750;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------- search
+  header cx-page-slot.SearchBox {
+    margin: 0;
+    padding: 0;
+  }
+
+  // Desktop: a pill field in the header. On phones Spartacus shows a magnifier that opens the
+  // field over the header; that behaviour is left alone and only dressed (further down).
+  @media (min-width: 992px) {
+    cx-searchbox {
+      width: 100%;
+      color: var(--pulse-ink);
+
+      .cx-input-label {
+        // the visible "Search" word; the field has a placeholder and an aria-label
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+      }
+
+      label.searchbox,
+      .cx-searchbox-container label {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+      }
+
+      .cx-label-inner-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        height: 46px;
+        padding: 0 8px 0 18px;
+        border: 1.5px solid var(--pulse-line);
+        border-radius: 999px;
+        background: var(--pulse-card);
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+
+        &:focus-within {
+          border-color: var(--pulse-ink);
+          box-shadow: 0 0 0 4px color-mix(in srgb, var(--pulse-accent) 18%, transparent);
+        }
+      }
+
+      input {
+        flex: 1;
+        min-width: 0;
+        min-height: 0;
+        height: 100%;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+        color: var(--pulse-ink);
+        font-size: 14.5px;
+
+        &:focus {
+          box-shadow: none;
+          border: 0;
+        }
+
+        &::placeholder {
+          color: var(--pulse-muted);
+        }
+      }
+
+      .search-icon,
+      button.reset {
+        display: grid;
+        place-items: center;
+        flex: none;
+        width: 32px;
+        height: 32px;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        color: var(--pulse-ink);
+
+        cx-icon {
+          color: inherit;
+          font-size: 14px;
+        }
+      }
+
+      .search-icon {
+        background: var(--pulse-ink);
+        color: #fff;
+      }
+
+      // suggestions panel
+      .results {
+        top: calc(100% + 10px);
+        left: auto;
+        right: 0;
+        width: min(92vw, 460px);
+        border: 1px solid var(--pulse-line);
+        border-radius: var(--pulse-radius-s);
+        background: var(--pulse-card);
+        color: var(--pulse-ink);
+        box-shadow: 0 30px 60px -30px rgba(14, 14, 16, 0.45);
+        overflow: hidden;
+
+        a,
+        .message {
+          color: var(--pulse-ink);
+          border-color: var(--pulse-line);
+        }
+
+        a:hover,
+        a:focus {
+          background: var(--pulse-paper);
+          color: var(--pulse-ink);
+        }
+
+        .price {
+          font-family: var(--pulse-mono);
+          font-weight: 700;
+        }
+
+        img {
+          mix-blend-mode: multiply;
+        }
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------- language / currency
+  cx-site-context-selector {
+    label {
+      margin: 0;
+
+      span {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+      }
+    }
+
+    select {
+      min-height: 0;
+      height: 40px;
+      padding: 0 28px 0 12px;
+      border: 0;
+      border-radius: 999px;
+      background-color: transparent;
+      color: var(--pulse-ink);
+      font-family: var(--pulse-mono);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      cursor: pointer;
+
+      &:hover {
+        background-color: var(--pulse-sand);
+      }
+    }
+
+    cx-icon {
+      color: var(--pulse-ink);
+    }
+  }
+
+  // ---------------------------------------------------------------- sign-in / account
+  header cx-page-slot.SiteLogin {
+    padding: 0;
+  }
+
+  cx-login {
+    color: var(--pulse-ink);
+
+    > a {
+      display: inline-flex;
+      align-items: center;
+      height: 46px;
+      padding: 0 18px;
+      border: 1.5px solid var(--pulse-ink);
+      border-radius: 999px;
+      color: var(--pulse-ink);
+      font-size: 14.5px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      transition:
+        background 0.2s,
+        color 0.2s;
+
+      &:hover {
+        background: var(--pulse-ink);
+        color: #fff;
+      }
+    }
+
+    .cx-login-greet {
+      color: var(--pulse-muted);
+      font-family: var(--pulse-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    cx-navigation-ui > nav > ul > li > button,
+    cx-navigation-ui > nav > ul > li > span {
+      color: var(--pulse-ink);
+      font-weight: 700;
+      text-transform: none;
+      padding: 0;
+    }
+
+    @media (min-width: 992px) {
+      cx-navigation-ui.flyout > nav > ul > li > .wrapper {
+        right: 0;
+        left: auto;
+        min-width: 220px;
+        margin-top: 10px;
+        padding: 10px;
+        border: 1px solid var(--pulse-line);
+        border-radius: var(--pulse-radius-s);
+        background: var(--pulse-card);
+        color: var(--pulse-ink);
+        box-shadow: 0 30px 60px -30px rgba(14, 14, 16, 0.4);
+
+        a {
+          display: block;
+          padding: 9px 12px;
+          border-radius: 10px;
+          color: var(--pulse-ink);
+          font-weight: 550;
+          text-decoration: none;
+
+          &:hover {
+            background: var(--pulse-paper);
+            color: var(--pulse-accent);
+          }
+        }
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------- mini cart
+  header cx-page-slot.MiniCart {
+    padding: 0;
+  }
+
+  cx-mini-cart {
+    a {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: auto;
+      min-width: 0;
+      height: 46px;
+      padding: 0 8px 0 18px;
+      border-radius: 999px;
+      background: var(--pulse-ink);
+      color: #fff;
+      font-weight: 700;
+      text-decoration: none;
+      transition:
+        background 0.2s,
+        transform 0.2s var(--pulse-ease);
+
+      &:hover {
+        background: var(--pulse-accent);
+        color: #fff;
+        transform: translateY(-1px);
+      }
+
+      cx-icon {
+        color: inherit;
+        font-size: 15px;
+      }
+
+      .total {
+        display: none;
+      }
+
+      .count {
+        display: grid;
+        place-items: center;
+        min-width: 30px;
+        height: 30px;
+        margin: 0;
+        padding: 0 8px;
+        border-radius: 999px;
+        background: var(--pulse-pop);
+        color: var(--pulse-ink);
+        font-family: var(--pulse-mono);
+        font-size: 13px;
+        font-weight: 700;
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------- breadcrumb row
+  cx-page-slot.BottomHeaderSlot {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--pulse-max);
+    margin-inline: auto;
+    padding: 0 var(--pulse-gutter);
+    background: transparent;
+  }
+
+  cx-breadcrumb {
+    display: block;
+    width: 100%;
+    padding: 18px 0 0;
+    background: transparent;
+    color: var(--pulse-muted);
+    text-align: left;
+    box-shadow: none;
+
+    nav,
+    ol,
+    ul {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      text-align: left;
+      padding: 0;
+      margin: 0;
+      font-family: var(--pulse-mono);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    a,
+    span {
+      color: var(--pulse-muted);
+      text-transform: uppercase;
+
+      &:hover {
+        color: var(--pulse-ink);
+      }
+    }
+
+    // the page title is shown by the page itself
+    h1 {
+      display: none;
+    }
+  }
+
+  // ---------------------------------------------------------------- main
+  cx-storefront > main {
+    min-height: 60vh;
+  }
+
+  // ---------------------------------------------------------------- perks + footer
+  cx-storefront > footer {
+    margin-top: var(--pulse-section);
+    background: var(--pulse-ink);
+    color: #fff;
+    overflow: hidden;
+
+    cx-page-layout.footer {
+      display: block;
+      max-width: none;
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      color: inherit;
+
+      > cx-page-slot {
+        display: block;
+        margin: 0;
+      }
+    }
+
+    cx-page-slot.PulsePerks {
+      background: var(--pulse-paper);
+      color: var(--pulse-ink);
+      border-top: 1px solid var(--pulse-line);
+    }
+
+    cx-page-slot.Footer {
+      max-width: var(--pulse-max);
+      margin-inline: auto;
+      padding: clamp(40px, 6vw, 80px) var(--pulse-gutter) 0;
+    }
+  }
+
+  pulse-paragraph.pulse-perks {
+    display: block;
+    max-width: var(--pulse-max);
+    margin-inline: auto;
+    padding: 0 var(--pulse-gutter);
+
+    ul {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: perk;
+    }
+
+    li {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: clamp(22px, 2.6vw, 36px) clamp(14px, 2vw, 28px);
+      border-left: 1px solid var(--pulse-line);
+      counter-increment: perk;
+
+      &:first-child {
+        border-left: 0;
+        padding-left: 0;
+      }
+
+      &::before {
+        content: '0' counter(perk);
+        font-family: var(--pulse-mono);
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--pulse-accent);
+      }
+    }
+
+    b {
+      font-size: clamp(17px, 1.5vw, 21px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    span {
+      color: var(--pulse-muted);
+      font-size: 14.5px;
+      line-height: 1.4;
+    }
+  }
+
+  cx-footer-navigation {
+    display: block;
+    background: transparent;
+    color: #fff;
+
+    cx-navigation-ui {
+      display: block;
+      background: transparent;
+
+      > nav > ul {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 32px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      > nav > ul > li {
+        margin: 0;
+        padding: 0;
+
+        > span,
+        > button {
+          display: block;
+          margin: 0 0 14px;
+          padding: 0;
+          border: 0;
+          background: transparent;
+          color: var(--pulse-pop);
+          font-family: var(--pulse-mono);
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          cursor: default;
+
+          cx-icon {
+            display: none;
+          }
+        }
+      }
+
+      .wrapper {
+        position: static;
+        display: block;
+        visibility: visible;
+        opacity: 1;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+        color: #fff;
+      }
+
+      .childs {
+        display: block;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .childs li {
+        padding: 0;
+      }
+
+      a {
+        display: inline-block;
+        padding: 5px 0;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 15.5px;
+        font-weight: 500;
+        text-decoration: none;
+        transition:
+          color 0.2s,
+          transform 0.2s var(--pulse-ease);
+
+        &:hover {
+          color: #fff;
+          transform: translateX(4px);
+        }
+      }
+    }
+  }
+
+  // the brand as a wordmark across the bottom
+  pulse-paragraph.pulse-notice {
+    display: block;
+    margin-top: clamp(32px, 5vw, 64px);
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+
+    .pulse-rich {
+      display: flex;
+      flex-direction: column-reverse;
+    }
+
+    span {
+      padding: 18px 0;
+      color: rgba(255, 255, 255, 0.56);
+      font-family: var(--pulse-mono);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    // sits on the bottom edge and is cut by it (the footer clips)
+    b {
+      display: block;
+      margin-bottom: -0.2em;
+      padding-right: 0.1em;
+      color: transparent;
+      background: linear-gradient(180deg, #fff 15%, rgba(255, 255, 255, 0.1) 88%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      font-size: clamp(64px, 17.5vw, 290px);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.065em;
+      text-transform: lowercase;
+      white-space: nowrap;
+      user-select: none;
+    }
+  }
+
+  cx-scroll-to-top .cx-scroll-to-top-btn {
+    border-radius: 50%;
+    background: var(--pulse-pop);
+    color: var(--pulse-ink);
+    box-shadow: 0 16px 34px -16px rgba(14, 14, 16, 0.6);
+
+    cx-icon {
+      color: inherit;
+    }
+  }
+
+  // ---------------------------------------------------------------- phones and tablets
+  @media (max-width: 991px) {
+    cx-storefront > header cx-page-layout.header {
+      grid-template-columns: auto auto minmax(0, 1fr) auto;
+      column-gap: 10px;
+
+      > cx-page-slot {
+        min-height: 62px;
+      }
+
+      > .SearchBox {
+        justify-content: flex-end;
+      }
+    }
+
+    pulse-banner.pulse-logo img {
+      height: 30px;
+    }
+
+    // colours only: when and where the field shows is Spartacus' business on a phone
+    cx-searchbox {
+      color: var(--pulse-ink);
+
+      button.search,
+      button.reset,
+      .search-icon {
+        border-radius: 50%;
+        background: transparent;
+        color: var(--pulse-ink);
+
+        cx-icon {
+          color: inherit;
+        }
+      }
+
+      input {
+        color: var(--pulse-ink);
+      }
+
+      .results {
+        background: var(--pulse-card);
+        color: var(--pulse-ink);
+
+        a,
+        .message {
+          color: var(--pulse-ink);
+        }
+      }
+    }
+
+    cx-mini-cart a {
+      display: inline-flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      width: auto;
+      height: 44px;
+      padding: 0 7px 0 14px;
+      gap: 8px;
+
+      .count {
+        min-width: 28px;
+        height: 28px;
+      }
+    }
+
+    cx-hamburger-menu button {
+      width: 46px;
+      height: 46px;
+      padding: 0;
+      border-radius: 50%;
+      background: transparent;
+
+      .hamburger-inner,
+      .hamburger-inner::before,
+      .hamburger-inner::after {
+        background-color: var(--pulse-ink);
+      }
+
+      &:hover {
+        background: var(--pulse-sand);
+      }
+    }
+
+    // the drawer
+    cx-storefront > header cx-page-layout.navigation {
+      background: var(--pulse-card);
+      color: var(--pulse-ink);
+
+      cx-page-slot {
+        padding: 6px var(--pulse-gutter);
+      }
+
+      cx-login > a {
+        justify-content: center;
+        width: 100%;
+        margin: 10px 0;
+      }
+
+      cx-navigation-ui {
+        background: transparent;
+        color: var(--pulse-ink);
+
+        nav > ul > li > cx-generic-link a,
+        nav > ul > li > button,
+        nav > ul > li > span,
+        .wrapper a {
+          color: var(--pulse-ink);
+          font-weight: 700;
+          text-transform: none;
+          border-color: var(--pulse-line);
+        }
+
+        .back button,
+        .back {
+          color: var(--pulse-muted);
+        }
+      }
+    }
+
+    pulse-paragraph.pulse-perks ul {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+
+      li:nth-child(odd) {
+        border-left: 0;
+        padding-left: 0;
+      }
+
+      li:nth-child(n + 3) {
+        border-top: 1px solid var(--pulse-line);
+      }
+    }
+  }
+}

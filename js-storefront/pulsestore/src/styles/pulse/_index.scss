@@ -1,0 +1,18 @@
+// Pulse: the look of this storefront. Loaded after the Spartacus styles (see styles.scss).
+//
+// Everything is scoped to `body.pulse` (index.html), which also gives these rules the extra
+// specificity to win over the Spartacus defaults without !important.
+//
+//   tokens    colours, type, spacing; maps them onto the Spartacus --cx-* variables
+//   controls  buttons, links, form fields
+//   chrome    ticker, header, menu, search, perks, footer
+//   home      hero, category tiles, product shelves, story band
+//   shop      listing (category + search) and product page
+//   flows     cart, sign-in, account, checkout, content pages
+
+@import 'tokens';
+@import 'controls';
+@import 'chrome';
+@import 'home';
+@import 'shop';
+@import 'flows';

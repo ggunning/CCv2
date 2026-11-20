@@ -1,0 +1,201 @@
+// Buttons, links and form fields: pill buttons in ink, soft white fields.
+body.pulse {
+  a {
+    color: inherit;
+  }
+
+  // ---- the Pulse button (cx-generic-link puts the class on the host and on its <a>)
+  a.pulse-btn,
+  button.pulse-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 28px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--pulse-ink);
+    color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1;
+    text-decoration: none;
+    transition:
+      background 0.25s var(--pulse-ease),
+      color 0.25s var(--pulse-ease),
+      transform 0.25s var(--pulse-ease);
+
+    span {
+      transition: transform 0.25s var(--pulse-ease);
+    }
+
+    &:hover {
+      background: var(--pulse-accent);
+      color: #fff;
+
+      span {
+        transform: translateX(5px);
+      }
+    }
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &.pulse-btn--pop {
+      background: var(--pulse-pop);
+      color: var(--pulse-ink);
+
+      &:hover {
+        background: #fff;
+        color: var(--pulse-ink);
+      }
+    }
+  }
+
+  // ---- Spartacus / Bootstrap buttons
+  .btn {
+    border-radius: 999px;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: none;
+    padding-inline: 24px;
+    min-height: 48px;
+    transition:
+      background 0.2s var(--pulse-ease),
+      border-color 0.2s var(--pulse-ease),
+      color 0.2s var(--pulse-ease),
+      transform 0.2s var(--pulse-ease);
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+
+  .btn-primary {
+    background: var(--pulse-ink);
+    border-color: var(--pulse-ink);
+    color: #fff;
+
+    &:hover,
+    &:focus {
+      background: var(--pulse-accent);
+      border-color: var(--pulse-accent);
+      color: #fff;
+    }
+
+    &:disabled,
+    &.disabled {
+      background: var(--cx-color-medium);
+      border-color: var(--cx-color-medium);
+      color: #fff;
+    }
+  }
+
+  .btn-secondary,
+  .btn-outline-primary,
+  .btn-tertiary {
+    background: transparent;
+    border: 1.5px solid var(--pulse-ink);
+    color: var(--pulse-ink);
+
+    &:hover,
+    &:focus {
+      background: var(--pulse-ink);
+      border-color: var(--pulse-ink);
+      color: #fff;
+    }
+  }
+
+  .btn-link,
+  .link,
+  .cx-action-link {
+    color: var(--pulse-ink);
+    text-decoration: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 4px;
+    font-weight: 600;
+
+    &:hover {
+      color: var(--pulse-accent);
+    }
+  }
+
+  // ---- fields
+  .form-control,
+  input[type='text'],
+  input[type='email'],
+  input[type='password'],
+  input[type='tel'],
+  input[type='number'],
+  select,
+  textarea,
+  .ng-select .ng-select-container {
+    border: 1.5px solid var(--pulse-line);
+    border-radius: var(--pulse-radius-s);
+    background: var(--pulse-card);
+    color: var(--pulse-ink);
+    min-height: 48px;
+    box-shadow: none;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+
+    &:focus,
+    &:focus-within {
+      border-color: var(--pulse-accent);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--pulse-accent) 18%, transparent);
+      outline: 0;
+    }
+  }
+
+  label .label-content,
+  .label-content {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    margin-bottom: 6px;
+  }
+
+  input[type='checkbox'],
+  input[type='radio'] {
+    accent-color: var(--pulse-accent);
+  }
+
+  // quantity stepper
+  cx-item-counter {
+    border: 1.5px solid var(--pulse-line);
+    border-radius: 999px;
+    background: var(--pulse-card);
+    overflow: hidden;
+
+    button,
+    input {
+      border: 0;
+      background: transparent;
+      min-height: 44px;
+      box-shadow: none;
+    }
+
+    button {
+      color: var(--pulse-ink);
+      font-size: 18px;
+
+      &:hover:not(:disabled) {
+        background: var(--pulse-sand);
+        color: var(--pulse-ink);
+      }
+    }
+  }
+
+  // toasts
+  cx-global-message .alert {
+    border: 0;
+    border-radius: 0;
+    font-weight: 600;
+  }
+
+  cx-global-message .alert-success {
+    background: var(--pulse-pop);
+    color: var(--pulse-ink);
+  }
+}

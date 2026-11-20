@@ -1,0 +1,954 @@
+// Cart, sign-in, account, checkout and content pages.
+body.pulse {
+  $stick: 104px;
+
+  // ---------------------------------------------------------------- page title
+  // Pages without an opener of their own (cart, account, checkout) show their title here.
+  cx-breadcrumb h1 {
+    display: block;
+    margin: 12px 0 0;
+    padding: 0;
+    font-size: clamp(38px, 6vw, 88px);
+    line-height: 0.92;
+    letter-spacing: -0.055em;
+    text-align: left;
+    text-transform: none;
+    color: var(--pulse-ink);
+  }
+
+  cx-storefront:has(cx-page-layout.PulseListingTemplate, cx-page-layout.PulseProductTemplate, cx-page-layout.PulseContentTemplate)
+    cx-breadcrumb
+    h1 {
+    display: none;
+  }
+
+  // shared: a white card
+  @mixin card {
+    padding: clamp(18px, 2.4vw, 32px);
+    border-radius: var(--pulse-radius);
+    background: var(--pulse-card);
+  }
+
+  @mixin page($columns) {
+    display: grid;
+    grid-template-columns: $columns;
+    gap: clamp(16px, 2.4vw, 36px);
+    align-items: start;
+    max-width: var(--pulse-max);
+    margin-inline: auto;
+    padding: clamp(20px, 3vw, 40px) var(--pulse-gutter) 0;
+
+    > cx-page-slot {
+      display: block;
+      min-width: 0;
+      margin: 0;
+
+      > * {
+        max-width: none;
+      }
+    }
+  }
+
+  // ================================================================ cart
+  cx-page-layout.PulseCartTemplate {
+    @include page(minmax(0, 1fr) minmax(300px, 400px));
+
+    > .PulseCartSummary {
+      @include card;
+      position: sticky;
+      top: $stick;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+
+      > * {
+        flex: none;
+        padding: 0;
+        margin: 0;
+      }
+    }
+
+    > .PulseCartEmpty {
+      grid-column: 1 / -1;
+    }
+  }
+
+  cx-cart-details {
+    display: block;
+
+    .cart-details-wrapper {
+      padding: 0;
+    }
+
+    h2.cx-total {
+      margin: 0 0 12px;
+      font-family: var(--pulse-mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--pulse-muted);
+    }
+  }
+
+  cx-cart-item-list {
+    display: block;
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 10px;
+    }
+
+    thead th,
+    .cx-item-list-header th {
+      padding: 0 16px 4px;
+      border: 0;
+      font-family: var(--pulse-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--pulse-muted);
+    }
+
+    tr.cx-item-list-row {
+      td {
+        padding: 16px;
+        border: 0;
+        background: var(--pulse-card);
+        vertical-align: middle;
+
+        &:first-child {
+          border-radius: var(--pulse-radius) 0 0 var(--pulse-radius);
+        }
+
+        &:last-child {
+          border-radius: 0 var(--pulse-radius) var(--pulse-radius) 0;
+        }
+      }
+    }
+
+    .cx-table-item-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      > a:first-child {
+        flex: none;
+        width: 96px;
+        aspect-ratio: 1;
+        border-radius: var(--pulse-radius-s);
+        background: var(--pulse-paper);
+        overflow: hidden;
+
+        cx-media,
+        img {
+          width: 100%;
+          height: 100%;
+        }
+
+        img {
+          object-fit: contain;
+          mix-blend-mode: multiply;
+        }
+      }
+    }
+
+    .cx-name a,
+    .cx-link {
+      color: var(--pulse-ink);
+      font-size: 16px;
+      font-weight: 750;
+      text-decoration: none;
+
+      &:hover {
+        color: var(--pulse-accent);
+      }
+    }
+
+    .cx-code,
+    .cx-property,
+    .cx-label {
+      color: var(--pulse-muted);
+      font-size: 13px;
+    }
+
+    .cx-price .cx-value,
+    .cx-total .cx-value {
+      font-family: var(--pulse-mono);
+      font-weight: 700;
+    }
+
+    .cx-remove-btn,
+    .cx-actions .btn {
+      min-height: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--pulse-muted);
+      font-size: 13.5px;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+
+      &:hover,
+      &:focus {
+        background: transparent;
+        color: var(--pulse-ink);
+      }
+    }
+  }
+
+  cx-order-summary {
+    display: block;
+    padding: 0;
+
+    .cx-summary-heading {
+      margin: 0 0 14px;
+      font-size: 24px;
+      letter-spacing: -0.03em;
+    }
+
+    .cx-summary-partials {
+      padding: 0;
+    }
+
+    .cx-summary-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 7px 0;
+      font-size: 15px;
+
+      > [class*='col-'] {
+        flex: none;
+        width: auto;
+        max-width: none;
+        padding: 0;
+      }
+    }
+
+    .cx-summary-amount {
+      font-family: var(--pulse-mono);
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .cx-summary-total {
+      margin-top: 10px;
+      padding-top: 16px;
+      border-top: 1.5px solid var(--pulse-ink);
+      font-size: 20px;
+      font-weight: 800;
+
+      .cx-summary-amount {
+        font-weight: 700;
+      }
+    }
+  }
+
+  cx-cart-coupon {
+    display: block;
+
+    .form-group {
+      margin: 0;
+    }
+
+    .cx-cart-coupon-title {
+      margin: 0 0 8px;
+      font-family: var(--pulse-mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--pulse-muted);
+    }
+
+    .cx-cart-coupon-container {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+
+      input {
+        border-radius: 999px;
+        padding-inline: 18px;
+      }
+
+      .btn {
+        width: auto;
+        margin: 0;
+      }
+    }
+  }
+
+  cx-cart-proceed-to-checkout .btn,
+  cx-place-order .btn-primary {
+    min-height: 60px;
+    font-size: 17px;
+  }
+
+  // "your cart is empty", "page not found"
+  pulse-paragraph.pulse-empty {
+    display: block;
+
+    .pulse-rich {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+      padding: clamp(28px, 6vw, 88px);
+      border-radius: calc(var(--pulse-radius) + 8px);
+      background: var(--pulse-card);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(34px, 5.4vw, 76px);
+      line-height: 0.92;
+      letter-spacing: -0.05em;
+    }
+
+    p {
+      margin: 0;
+      max-width: 44ch;
+      font-size: 17px;
+      color: var(--pulse-muted);
+    }
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+      padding: 16px 28px;
+      border-radius: 999px;
+      background: var(--pulse-ink);
+      color: #fff;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.25s var(--pulse-ease);
+
+      &::after {
+        content: '→';
+        transition: transform 0.25s var(--pulse-ease);
+      }
+
+      &:hover {
+        background: var(--pulse-accent);
+
+        &::after {
+          transform: translateX(5px);
+        }
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------- dialogs (added to cart, ...)
+  .modal,
+  cx-added-to-cart-dialog {
+    background: rgba(14, 14, 16, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  .cx-modal-content,
+  .modal-content {
+    border: 0;
+    border-radius: calc(var(--pulse-radius) + 4px);
+    background: var(--pulse-card);
+    box-shadow: 0 40px 90px -40px rgba(14, 14, 16, 0.6);
+    overflow: hidden;
+  }
+
+  .cx-dialog-header,
+  .modal-header {
+    padding: 22px 26px 8px;
+    border: 0;
+
+    .cx-dialog-title,
+    .modal-title {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .close {
+      opacity: 1;
+      color: var(--pulse-ink);
+    }
+  }
+
+  .cx-dialog-body,
+  .modal-body {
+    padding: 12px 26px 26px;
+  }
+
+  cx-added-to-cart-dialog {
+    .cx-dialog-total {
+      font-family: var(--pulse-mono);
+      font-weight: 700;
+    }
+
+    .cx-dialog-buttons .btn {
+      text-transform: none;
+
+      &::first-letter {
+        text-transform: uppercase;
+      }
+    }
+
+    .cx-image-container img {
+      mix-blend-mode: multiply;
+    }
+  }
+
+  // ================================================================ sign-in / register
+  cx-page-layout.PulseAuthTemplate {
+    @include page(minmax(0, 1fr) minmax(0, 1fr));
+    align-items: stretch;
+    max-width: 1120px;
+    padding-top: clamp(24px, 5vw, 72px);
+
+    > .PulseAuthMain {
+      @include card;
+      padding: clamp(22px, 4vw, 52px);
+
+      > * {
+        padding: 0;
+      }
+
+      > * + * {
+        margin-top: 28px;
+        padding-top: 28px;
+        border-top: 1px solid var(--pulse-line);
+      }
+
+      h1,
+      h2,
+      .cx-section-title,
+      .cx-page-title {
+        margin: 0 0 18px;
+        font-size: clamp(28px, 3.4vw, 44px);
+        letter-spacing: -0.045em;
+        line-height: 1;
+        text-transform: none;
+      }
+
+      .btn-block {
+        min-height: 54px;
+      }
+
+      // the forms come with their own page grid: here the card is the page
+      .container,
+      .cx-page-section {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .row {
+        display: block;
+        margin: 0;
+      }
+
+      [class*='col-'] {
+        flex: none;
+        width: 100%;
+        max-width: none;
+        padding: 0;
+      }
+    }
+
+    > .PulseAuthSide {
+      display: flex;
+    }
+  }
+
+  pulse-paragraph.pulse-auth-why {
+    position: relative;
+    display: flex;
+    flex: 1;
+    border-radius: var(--pulse-radius);
+    background: var(--pulse-ink);
+    color: #fff;
+    overflow: hidden;
+    isolation: isolate;
+
+    &::after {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      right: -22%;
+      bottom: -30%;
+      width: 78%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--pulse-accent);
+    }
+
+    .pulse-rich {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      padding: clamp(22px, 4vw, 52px);
+    }
+
+    small {
+      @include pulse-dot;
+      color: var(--pulse-pop);
+
+      &::before {
+        background: var(--pulse-pop);
+      }
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 56px);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      text-wrap: balance;
+    }
+
+    ul {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: auto 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16.5px;
+      font-weight: 600;
+
+      &::before {
+        content: '✓';
+        display: grid;
+        place-items: center;
+        flex: none;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: var(--pulse-pop);
+        color: var(--pulse-ink);
+        font-size: 13px;
+      }
+    }
+  }
+
+  // ================================================================ account
+  cx-page-layout.PulseAccountTemplate {
+    @include page(240px minmax(0, 1fr));
+
+    > .PulseAccountNav {
+      position: sticky;
+      top: $stick;
+    }
+
+    > .BodyContent {
+      @include card;
+
+      > * {
+        padding: 0;
+      }
+
+      > * + * {
+        margin-top: 24px;
+      }
+
+      h2,
+      h3,
+      .cx-header h2 {
+        font-size: 22px;
+        letter-spacing: -0.03em;
+        text-transform: none;
+      }
+
+      .cx-card,
+      .card {
+        border: 1.5px solid var(--pulse-line);
+        border-radius: var(--pulse-radius-s);
+        background: var(--pulse-card);
+        box-shadow: none;
+      }
+
+      table {
+        width: 100%;
+
+        th {
+          border: 0;
+          font-family: var(--pulse-mono);
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: var(--pulse-muted);
+        }
+
+        td {
+          border-color: var(--pulse-line);
+        }
+      }
+    }
+  }
+
+  // the side menu (a NavigationComponent with the style class pulse-account-nav)
+  cx-page-slot.PulseAccountNav cx-navigation-ui {
+    display: block;
+    background: transparent;
+    color: var(--pulse-ink);
+
+    > nav > ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    > nav > ul > li > span,
+    > nav > ul > li > button {
+      display: block;
+      margin: 0 0 10px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      font-family: var(--pulse-mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--pulse-muted);
+
+      cx-icon {
+        display: none;
+      }
+    }
+
+    .wrapper {
+      position: static;
+      display: block;
+      visibility: visible;
+      opacity: 1;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .childs {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    a {
+      display: block;
+      padding: 10px 14px;
+      border-radius: 999px;
+      color: var(--pulse-ink);
+      font-size: 15px;
+      font-weight: 650;
+      text-decoration: none;
+      transition:
+        background 0.2s,
+        color 0.2s;
+
+      &:hover {
+        background: var(--pulse-card);
+      }
+
+      &.active,
+      &[aria-current='page'] {
+        background: var(--pulse-ink);
+        color: #fff;
+      }
+    }
+  }
+
+  // ================================================================ checkout
+  cx-page-layout.PulseCheckoutTemplate {
+    @include page(minmax(0, 1fr) minmax(300px, 400px));
+
+    > .BodyContent {
+      @include card;
+
+      > * {
+        padding: 0;
+      }
+
+      h2,
+      h3,
+      .cx-checkout-title {
+        font-size: 24px;
+        letter-spacing: -0.03em;
+        text-transform: none;
+      }
+
+      .cx-card,
+      .card {
+        border: 1.5px solid var(--pulse-line);
+        border-radius: var(--pulse-radius-s);
+        box-shadow: none;
+      }
+
+      .cx-card-border,
+      .cx-card.cx-card-border {
+        border-color: var(--pulse-ink);
+      }
+    }
+
+    > .SideContent {
+      @include card;
+      position: sticky;
+      top: $stick;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+
+      > * {
+        padding: 0;
+      }
+    }
+  }
+
+  cx-checkout-progress {
+    display: block;
+    margin-bottom: 24px;
+
+    .cx-nav,
+    nav {
+      background: transparent;
+      padding: 0;
+    }
+
+    .cx-list,
+    ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      list-style: none;
+    }
+
+    .cx-item {
+      flex: none;
+      padding: 0;
+      border: 0;
+      background: transparent;
+
+      &::after,
+      &::before {
+        display: none;
+      }
+    }
+
+    .cx-link {
+      display: inline-flex;
+      align-items: center;
+      padding: 9px 16px;
+      border: 1.5px solid var(--pulse-line);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--pulse-muted);
+      font-size: 13.5px;
+      font-weight: 700;
+      text-decoration: none;
+      text-transform: none;
+
+      &.active,
+      &.is-active {
+        border-color: var(--pulse-ink);
+        background: var(--pulse-ink);
+        color: #fff;
+      }
+
+      &.disabled,
+      &.is-disabled {
+        opacity: 0.55;
+      }
+    }
+  }
+
+  // ================================================================ content pages
+  cx-page-layout.PulseContentTemplate {
+    display: block;
+    max-width: var(--pulse-max);
+    margin-inline: auto;
+    padding: 0 var(--pulse-gutter);
+
+    > cx-page-slot {
+      display: block;
+      margin: 0;
+    }
+
+    > .BodyContent {
+      padding-top: clamp(20px, 3vw, 40px);
+
+      > * {
+        display: block;
+        max-width: none;
+      }
+
+      > * + * {
+        margin-top: 16px;
+      }
+
+      // order confirmation blocks
+      > cx-order-confirmation-thank-you-message,
+      > cx-order-detail-shipping,
+      > cx-order-detail-billing,
+      > cx-order-confirmation-shipping,
+      > cx-order-confirmation-totals,
+      > cx-order-overview {
+        @include card;
+      }
+    }
+  }
+
+  pulse-paragraph.pulse-page-hero {
+    display: block;
+    padding: clamp(24px, 4vw, 64px) 0 clamp(12px, 2vw, 24px);
+    border-bottom: 1.5px solid var(--pulse-ink);
+    animation: pulse-rise 0.6s var(--pulse-ease) both;
+
+    small {
+      @include pulse-dot;
+      color: var(--pulse-muted);
+    }
+
+    h1 {
+      margin: 14px 0 0;
+      font-size: clamp(44px, 8.6vw, 136px);
+      line-height: 0.86;
+      letter-spacing: -0.06em;
+      text-wrap: balance;
+    }
+  }
+
+  pulse-paragraph.pulse-prose {
+    display: block;
+    max-width: 72ch;
+    font-size: 18.5px;
+    line-height: 1.6;
+
+    p {
+      margin: 0 0 1.1em;
+    }
+
+    // the opening paragraph reads as a lead
+    .pulse-rich > p:first-child {
+      font-size: clamp(22px, 2.4vw, 32px);
+      line-height: 1.25;
+      letter-spacing: -0.025em;
+      font-weight: 600;
+    }
+
+    h2 {
+      margin: 1.6em 0 0.4em;
+      font-size: clamp(24px, 2.6vw, 36px);
+      letter-spacing: -0.04em;
+    }
+
+    a {
+      color: var(--pulse-accent);
+      font-weight: 600;
+    }
+  }
+
+  pulse-paragraph.pulse-faq {
+    details {
+      margin-bottom: 10px;
+      border-radius: var(--pulse-radius-s);
+      background: var(--pulse-card);
+      overflow: hidden;
+
+      p {
+        margin: 0;
+        padding: 0 22px 20px;
+        font-size: 16.5px;
+        color: var(--pulse-muted);
+      }
+
+      &[open] summary::after {
+        transform: rotate(45deg);
+        background: var(--pulse-accent);
+      }
+    }
+
+    summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 22px;
+      font-size: 18px;
+      font-weight: 750;
+      letter-spacing: -0.02em;
+      list-style: none;
+      cursor: pointer;
+
+      &::-webkit-details-marker {
+        display: none;
+      }
+
+      &::after {
+        content: '+';
+        display: grid;
+        place-items: center;
+        flex: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--pulse-ink);
+        color: #fff;
+        font-size: 20px;
+        font-weight: 400;
+        transition:
+          transform 0.3s var(--pulse-ease),
+          background 0.2s;
+      }
+    }
+  }
+
+  // ================================================================ smaller screens
+  @media (max-width: 991px) {
+    cx-page-layout.PulseCartTemplate,
+    cx-page-layout.PulseCheckoutTemplate,
+    cx-page-layout.PulseAuthTemplate,
+    cx-page-layout.PulseAccountTemplate {
+      grid-template-columns: minmax(0, 1fr);
+
+      > cx-page-slot {
+        position: static;
+      }
+    }
+
+    cx-page-slot.PulseAccountNav cx-navigation-ui .childs {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    cx-cart-item-list tr.cx-item-list-row td {
+      border-radius: 0;
+
+      &:first-child {
+        border-radius: var(--pulse-radius) var(--pulse-radius) 0 0;
+      }
+
+      &:last-child {
+        border-radius: 0 0 var(--pulse-radius) var(--pulse-radius);
+      }
+    }
+  }
+}

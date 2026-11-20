@@ -1,0 +1,902 @@
+// Listing (category + search results) and product page.
+body.pulse {
+  $stick: 104px; // below the sticky header
+
+  // ================================================================ listing
+  cx-page-layout.PulseListingTemplate {
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: 28px clamp(20px, 3vw, 44px);
+    align-items: start;
+    max-width: var(--pulse-max);
+    margin-inline: auto;
+    padding: 0 var(--pulse-gutter);
+
+    > cx-page-slot {
+      display: block;
+      min-width: 0;
+      margin: 0;
+    }
+
+    > .PulseListingHero {
+      grid-column: 1 / -1;
+    }
+
+    > .PulseFilters {
+      position: sticky;
+      top: $stick;
+    }
+
+    // nothing to filter by: the grid takes the full width
+    &:not(:has(cx-facet)) {
+      grid-template-columns: minmax(0, 1fr);
+
+      > .PulseFilters {
+        display: none;
+      }
+    }
+  }
+
+  pulse-listing-hero {
+    display: block;
+    padding: clamp(20px, 3.4vw, 48px) 0 clamp(8px, 1.4vw, 20px);
+    border-bottom: 1.5px solid var(--pulse-ink);
+    animation: pulse-rise 0.6s var(--pulse-ease) both;
+
+    small {
+      @include pulse-dot;
+      color: var(--pulse-muted);
+    }
+
+    h1 {
+      margin: 14px 0 12px;
+      font-size: clamp(44px, 8.6vw, 136px);
+      line-height: 0.86;
+      letter-spacing: -0.06em;
+      text-wrap: balance;
+      overflow-wrap: anywhere;
+    }
+
+    p {
+      margin: 0 0 14px;
+      font-family: var(--pulse-mono);
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--pulse-muted);
+
+      b {
+        color: var(--pulse-ink);
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------- filters
+  cx-product-facet-navigation {
+    display: block;
+    min-width: 0;
+
+    .list-header h4,
+    cx-facet-list h4 {
+      margin: 0 0 12px;
+      font-family: var(--pulse-mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--pulse-muted);
+    }
+
+    cx-facet-list .inner {
+      padding: 0;
+    }
+
+    .accordian {
+      border-bottom: 1px solid var(--pulse-line);
+
+      > .tab-btn {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: 100%;
+        height: auto;
+        margin: 0;
+        padding: 14px 0;
+        border: 0;
+        border-top: 1px solid var(--pulse-line);
+        border-radius: 0;
+        background: transparent;
+        color: var(--pulse-ink);
+        font-size: 15px;
+        font-weight: 750;
+        letter-spacing: -0.01em;
+        text-align: left;
+        text-transform: none;
+
+        &::before,
+        &::after {
+          display: none;
+        }
+
+        &:hover {
+          color: var(--pulse-accent);
+        }
+
+        .tab-icon {
+          display: grid;
+          place-items: center;
+          flex: none;
+          width: 26px;
+          height: 26px;
+          border-radius: 50%;
+          background: var(--pulse-sand);
+          color: var(--pulse-ink);
+          font-size: 15px;
+          font-weight: 500;
+        }
+
+        &.active .tab-icon {
+          background: var(--pulse-ink);
+          color: #fff;
+        }
+      }
+
+      cx-tab-panel > div {
+        padding: 0 0 14px;
+        border: 0;
+        background: transparent;
+      }
+    }
+
+    cx-facet {
+      button.heading,
+      .heading {
+        padding: 14px 0;
+        border: 0;
+        border-top: 1px solid var(--pulse-line);
+        background: transparent;
+        color: var(--pulse-ink);
+        font-size: 15px;
+        font-weight: 750;
+        letter-spacing: -0.01em;
+        text-transform: none;
+      }
+
+      a.value,
+      .value {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 0;
+        color: var(--pulse-ink);
+        font-size: 14.5px;
+        text-decoration: none;
+        cursor: pointer;
+
+        &:hover {
+          color: var(--pulse-accent);
+        }
+
+        .count {
+          margin-left: auto;
+          font-family: var(--pulse-mono);
+          font-size: 12px;
+          color: var(--pulse-muted);
+        }
+      }
+
+      button.cx-action-link {
+        padding: 6px 0;
+        font-size: 13px;
+      }
+    }
+
+    // the chosen filters as chips
+    cx-active-facets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+
+      h4 {
+        flex: 0 0 100%;
+      }
+
+      a,
+      .active-facet {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        padding: 7px 12px;
+        border: 0;
+        border-radius: 999px;
+        background: var(--pulse-ink);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+
+        cx-icon {
+          color: var(--pulse-pop);
+          font-size: 11px;
+        }
+
+        &:hover {
+          background: var(--pulse-accent);
+        }
+      }
+    }
+
+    // phones: the "Filter" button that opens the list
+    button.dialog-trigger {
+      width: auto;
+      margin: 0 0 12px;
+      border: 1.5px solid var(--pulse-ink);
+      background: transparent;
+      color: var(--pulse-ink);
+    }
+  }
+
+  // ---------------------------------------------------------------- the product grid
+  cx-product-list {
+    display: block;
+    min-width: 0;
+
+    .cx-page-section,
+    .container {
+      max-width: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .row {
+      margin-inline: 0;
+    }
+
+    .cx-page > section > .container > .row > [class*='col-'] {
+      padding: 0;
+    }
+
+    // sort + paging bar
+    .cx-sorting {
+      margin: 0;
+      padding: 0 0 18px;
+      border: 0;
+
+      > .row {
+        align-items: center;
+        gap: 12px;
+      }
+
+      &.bottom {
+        padding: 28px 0 0;
+
+        .cx-sort-dropdown,
+        cx-product-view {
+          display: none;
+        }
+
+        > .row {
+          justify-content: center;
+        }
+      }
+    }
+
+    .cx-sort-dropdown {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      max-width: 320px;
+      margin: 0;
+      padding: 0;
+
+      > span {
+        margin: 0;
+        font-family: var(--pulse-mono);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--pulse-muted);
+        white-space: nowrap;
+      }
+
+      cx-sorting {
+        flex: 1;
+      }
+
+      .ng-select .ng-select-container {
+        min-height: 44px;
+        border-radius: 999px;
+        padding-inline: 8px;
+      }
+    }
+
+    // one look only: list and grid mode both render as the card grid below
+    cx-product-view {
+      display: none;
+    }
+
+    .cx-product-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+      gap: var(--pulse-gap);
+
+      > .row {
+        display: contents;
+      }
+    }
+  }
+
+  cx-product-list-item,
+  cx-product-grid-item {
+    display: flex;
+    flex-direction: column;
+    max-width: none;
+    width: auto;
+    margin: 0;
+    padding: 12px 12px 16px;
+    border: 0;
+    border-radius: var(--pulse-radius);
+    background: var(--pulse-card);
+    text-align: left;
+    transition:
+      transform 0.35s var(--pulse-ease),
+      box-shadow 0.35s var(--pulse-ease);
+
+    &:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 26px 50px -28px rgba(14, 14, 16, 0.45);
+    }
+
+    > .row {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 14px;
+      margin: 0;
+
+      > [class*='col-'] {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: none;
+        width: 100%;
+        max-width: none;
+        padding: 0;
+
+        &:last-child {
+          flex: 1;
+          padding-inline: 4px;
+        }
+      }
+    }
+
+    .cx-product-image-container {
+      display: block;
+      aspect-ratio: 1;
+      margin: 0;
+      border-radius: var(--pulse-radius-s);
+      background: var(--pulse-paper);
+      overflow: hidden;
+
+      cx-media {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 10%;
+        mix-blend-mode: multiply;
+        transition: transform 0.6s var(--pulse-ease);
+      }
+    }
+
+    &:hover .cx-product-image-container img {
+      transform: scale(1.08);
+    }
+
+    .cx-product-name {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.005em;
+      line-height: 1.25;
+
+      a {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        min-height: 2.5em;
+        color: var(--pulse-ink);
+        text-decoration: none;
+
+        &:hover {
+          color: var(--pulse-accent);
+        }
+      }
+    }
+
+    .cx-product-no-review,
+    .cx-product-summary,
+    cx-read-more {
+      display: none;
+    }
+
+    cx-star-rating {
+      font-size: 12px;
+      color: var(--pulse-ink);
+    }
+
+    .cx-product-price {
+      margin: 0;
+      font-family: var(--pulse-mono);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    // the add-to-cart row
+    > .row .row {
+      display: block;
+      margin: auto 0 0;
+
+      > [class*='col-'] {
+        max-width: none;
+        padding: 0;
+      }
+    }
+
+    cx-add-to-cart .btn,
+    .btn {
+      min-height: 44px;
+      font-size: 14.5px;
+    }
+
+    cx-add-to-cart .quantity {
+      display: none;
+    }
+  }
+
+  cx-pagination {
+    display: flex;
+    gap: 6px;
+
+    a {
+      display: grid;
+      place-items: center;
+      min-width: 42px;
+      height: 42px;
+      margin: 0;
+      padding: 0 8px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--pulse-ink);
+      font-family: var(--pulse-mono);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+
+      &:hover {
+        background: var(--pulse-sand);
+        color: var(--pulse-ink);
+      }
+
+      &.current {
+        background: var(--pulse-ink);
+        color: #fff;
+      }
+
+      &.disabled {
+        opacity: 0.3;
+      }
+    }
+  }
+
+  // ================================================================ product page
+  // Two columns all the way down: pictures, details and related products on the left, the buy
+  // box on the right, where it stays in view while the left side scrolls. (A sticky grid item is
+  // held by the whole grid, not by its row, so nothing may sit below the buy box.)
+  cx-page-layout.PulseProductTemplate {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+    gap: clamp(20px, 2.4vw, 36px) clamp(24px, 4.5vw, 72px);
+    align-items: start;
+    max-width: var(--pulse-max);
+    margin-inline: auto;
+    padding: clamp(16px, 2vw, 28px) var(--pulse-gutter) 0;
+
+    > cx-page-slot {
+      display: block;
+      grid-column: 1;
+      min-width: 0;
+      margin: 0;
+    }
+
+    > .PulseGallery {
+      padding: clamp(16px, 3vw, 44px);
+      border-radius: calc(var(--pulse-radius) + 8px);
+      background: var(--pulse-card);
+      animation: pulse-rise 0.6s var(--pulse-ease) both;
+    }
+
+    > .PulseBuyBox {
+      grid-column: 2;
+      grid-row: 1 / span 3;
+      position: sticky;
+      top: $stick;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding-top: clamp(0px, 1.4vw, 20px);
+      animation: pulse-rise 0.6s 0.08s var(--pulse-ease) both;
+
+      > * {
+        flex: none;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    }
+
+    > .PulseRelated {
+      padding-top: clamp(20px, 3vw, 44px);
+
+      pulse-shelf .pulse-shelf__head h2 {
+        font-size: clamp(26px, 3vw, 42px);
+      }
+
+      pulse-shelf .pulse-shelf__track {
+        grid-auto-columns: clamp(190px, 32%, 250px);
+        margin-inline: 0;
+        padding-inline: 0;
+        scroll-padding-inline: 0;
+      }
+    }
+  }
+
+  cx-product-images {
+    display: block;
+    position: relative;
+
+    > cx-media {
+      display: block;
+      aspect-ratio: 1;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        mix-blend-mode: multiply;
+      }
+    }
+
+    // thumbnails
+    cx-carousel {
+      margin-top: 16px;
+
+      .item,
+      cx-media {
+        border: 0;
+      }
+
+      cx-media {
+        border-radius: 12px;
+        background: var(--pulse-paper);
+        overflow: hidden;
+        outline: 2px solid transparent;
+        transition: outline-color 0.2s;
+
+        img {
+          mix-blend-mode: multiply;
+        }
+
+        &.is-active,
+        &:hover {
+          outline-color: var(--pulse-ink);
+        }
+      }
+    }
+
+    cx-product-image-zoom-trigger {
+      position: absolute;
+      right: 0;
+      top: 0;
+
+      .btn {
+        display: grid;
+        place-items: center;
+        width: 46px;
+        min-height: 46px;
+        height: 46px;
+        padding: 0;
+        border-radius: 50%;
+        background: var(--pulse-card);
+        // the words "Expand image": the icon says it (the button keeps its aria-label)
+        font-size: 0;
+        overflow: hidden;
+
+        cx-icon {
+          font-size: 15px;
+        }
+
+        &:hover cx-icon {
+          color: #fff;
+        }
+      }
+    }
+  }
+
+  pulse-product-title {
+    display: block;
+
+    small {
+      @include pulse-dot;
+      color: var(--pulse-muted);
+    }
+
+    h1 {
+      margin: 14px 0 0;
+      font-size: clamp(34px, 4.4vw, 64px);
+      line-height: 0.94;
+      letter-spacing: -0.05em;
+      text-wrap: balance;
+    }
+  }
+
+  cx-product-intro {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 18px;
+    font-family: var(--pulse-mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--pulse-muted);
+
+    .rating,
+    .code {
+      margin: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    cx-star-rating {
+      color: var(--pulse-ink);
+    }
+
+    .btn,
+    button {
+      min-height: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--pulse-ink);
+      font-family: inherit;
+      font-size: 12px;
+      letter-spacing: inherit;
+      text-transform: inherit;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+
+      &:hover,
+      &:focus {
+        background: transparent;
+        color: var(--pulse-accent);
+      }
+    }
+  }
+
+  cx-product-summary {
+    display: block;
+
+    .price {
+      margin: 0;
+      font-family: var(--pulse-mono);
+      font-size: clamp(26px, 2.6vw, 36px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .summary {
+      margin: 14px 0 0;
+      max-width: 52ch;
+      font-size: 16.5px;
+      line-height: 1.5;
+      color: var(--pulse-muted);
+
+      &:empty {
+        display: none;
+      }
+    }
+  }
+
+  cx-page-slot.PulseBuyBox cx-add-to-cart {
+    display: block;
+    padding-top: 18px;
+    // room for the stock line under the row
+    margin-bottom: 26px;
+    border-top: 1px solid var(--pulse-line);
+
+    form {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: end;
+      gap: 12px;
+    }
+
+    .quantity {
+      margin: 0;
+
+      label {
+        display: block;
+        margin: 0 0 8px;
+        font-family: var(--pulse-mono);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--pulse-muted);
+      }
+
+      .cx-counter-stock {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      cx-item-counter {
+        button,
+        input {
+          min-height: 54px;
+        }
+      }
+
+      // "In stock": said by the green dot next to the button instead
+      .info {
+        position: absolute;
+        margin: 0;
+        transform: translateY(46px);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--pulse-mono);
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--pulse-muted);
+
+        &::before {
+          content: '';
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: var(--cx-color-success);
+        }
+      }
+    }
+
+    .btn-primary {
+      min-height: 58px;
+      margin: 0;
+      font-size: 17px;
+    }
+  }
+
+  cx-add-to-wishlist {
+    display: block;
+
+    .btn,
+    a {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 0;
+      padding: 0;
+      color: var(--pulse-ink);
+      font-size: 14.5px;
+    }
+  }
+
+  // ---------------------------------------------------------------- tabs
+  cx-tab-paragraph-container,
+  cx-tab {
+    display: block;
+  }
+
+  cx-tab-paragraph-container cx-tab {
+    .tab {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 0 0 18px;
+      padding: 0;
+      border: 0;
+    }
+
+    .tab-btn {
+      flex: none;
+      width: auto;
+      height: auto;
+      margin: 0;
+      padding: 12px 20px;
+      border: 1.5px solid var(--pulse-line);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--pulse-ink);
+      font-size: 14.5px;
+      font-weight: 700;
+      text-transform: none;
+      transition:
+        background 0.2s,
+        color 0.2s,
+        border-color 0.2s;
+
+      &::before,
+      &::after {
+        display: none;
+      }
+
+      &:hover {
+        border-color: var(--pulse-ink);
+        color: var(--pulse-ink);
+      }
+
+      &.active {
+        border-color: var(--pulse-ink);
+        background: var(--pulse-ink);
+        color: #fff;
+      }
+    }
+
+    cx-tab-panel > div.active {
+      padding: clamp(20px, 3vw, 44px);
+      border-radius: var(--pulse-radius);
+      background: var(--pulse-card);
+    }
+
+    .container {
+      max-width: 78ch;
+      margin: 0;
+      padding: 0;
+      font-size: 16.5px;
+      line-height: 1.6;
+    }
+  }
+
+  // ================================================================ smaller screens
+  @media (max-width: 991px) {
+    cx-page-layout.PulseListingTemplate {
+      grid-template-columns: minmax(0, 1fr);
+
+      > .PulseFilters {
+        position: static;
+      }
+    }
+
+    cx-product-list .cx-product-container {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+
+    cx-page-layout.PulseProductTemplate {
+      grid-template-columns: minmax(0, 1fr);
+
+      > cx-page-slot,
+      > .PulseBuyBox {
+        grid-column: 1;
+        grid-row: auto;
+        position: static;
+      }
+    }
+  }
+}
