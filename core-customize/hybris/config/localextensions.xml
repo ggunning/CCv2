@@ -22,7 +22,6 @@
     <extension name='b2bacceleratorfacades' />
     <extension name='b2bacceleratorservices' />
     <extension name='b2bocc' />
-    <extension name='b2bocctests' />
     <extension name='b2bwebservicescommons' />
     <extension name='powertoolsstore' />
     <extension name='savedorderforms' />
@@ -35,7 +34,6 @@
     <extension name='b2bpunchout' />
     <extension name='b2bpunchoutbackoffice' />
     <extension name='b2bpunchoutocc' />
-    <extension name='b2bpunchoutocctests' />
     <extension name='apparelstore' />
     <extension name='electronicsstore' />
     <extension name='wishlist' />
@@ -50,7 +48,6 @@
     <extension name='yacceleratorcore' />
     <extension name='yacceleratorfacades' />
     <extension name='yacceleratorinitialdata' />
-    <extension name='yacceleratorstorefront' />
     <extension name='basecommerce' />
     <extension name='basecommercebackoffice' />
     <extension name='customerreview' />
@@ -75,18 +72,14 @@
     <extension name='commerceservicesbackoffice' />
     <extension name='commercewebservices' />
     <extension name='commercewebservicescommons' />
-    <extension name='commercewebservicestests' />
     <extension name='yocc' />
-    <extension name='yocctests' />
     <extension name='configurablebundlebackoffice' />
     <extension name='configurablebundlefacades' />
     <extension name='configurablebundleocc' />
-    <extension name='configurablebundleocctests' />
     <extension name='configurablebundleservices' />
     <extension name='sapproductconfigb2bservices' />
     <extension name='sapproductconfigfacades' />
     <extension name='sapproductconfigocc' />
-    <extension name='sapproductconfigocctests' />
     <extension name='sapproductconfigrules' />
     <extension name='sapproductconfigrulesbackoffice' />
     <extension name='sapproductconfigruntimeinterface' />
@@ -116,7 +109,6 @@
     <extension name='customersupportbackoffice' />
     <extension name='customerticketingfacades' />
     <extension name='customerticketingocc' />
-    <extension name='customerticketingocctests' />
     <extension name='ticketsystem' />
     <extension name='ticketsystembackoffice' />
     <extension name='datahubadapter' />
@@ -225,7 +217,6 @@
     <extension name='textfieldconfiguratortemplatebackoffice' />
     <extension name='textfieldconfiguratortemplatefacades' />
     <extension name='textfieldconfiguratortemplateocc' />
-    <extension name='textfieldconfiguratortemplateocctests' />
     <extension name='textfieldconfiguratortemplateservices' />
     <extension name='timedaccesspromotionenginebackoffice' />
     <extension name='timedaccesspromotionenginefacades' />
@@ -249,8 +240,6 @@
     <extension name='xyformsservices' />
     <extension name='xyformsweb' />
 
-<!-- accelerator + addons are legacy, do not use anymore; just configured to enable end-to-end showcase -->
-    <extension name= 'ordermanagementaddon' />
 
 
 <!-- Sample Custom Extensions -->
