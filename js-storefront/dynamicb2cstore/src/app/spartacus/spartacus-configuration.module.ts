@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { translationChunksConfig, translationsEn } from '@spartacus/assets';
 import {
+  AuthConfig,
   FeaturesConfig,
   I18nConfig,
   OccConfig,
@@ -35,6 +36,19 @@ import {
     // that site, so a new B2C store needs an endpoint, not a rebuild. B2B sites go to dynamicb2bstore.
     provideConfig(<SiteContextConfig>{
       context: {},
+    }),
+    // Sign-in for whichever site the URL picked. With `context: {}` the site's URL parameters are
+    // only known after start-up, so Spartacus' 'auto' defaults would ask for the shared client
+    // mobile_android_public and send the user back to the bare origin, which matches no site.
+    // Always use the per-site client mobile_android_public_<site> and return to <origin>/<site>
+    // (register that redirect URI, and give the site a path URL pattern /<site>).
+    provideConfig(<AuthConfig>{
+      authentication: {
+        initializerOptions: {
+          baseSiteSuffix: true,
+          addBaseSiteToRedirectUri: true,
+        },
+      },
     }),
     provideConfig(<I18nConfig>{
       i18n: {

@@ -62,6 +62,17 @@ export function app(): express.Express {
   server.set('view engine', 'html');
   server.set('views', browserDistFolder);
 
+  // The bare host matches no CMSSite URL pattern, so rendering "/" fails ("Cannot get base site
+  // config"). Send it to a default site instead; DEFAULT_SITE overrides it without a rebuild.
+  const defaultSite = process.env['DEFAULT_SITE'] || 'electronics-spa';
+  server.get('/', (req, res, next) => {
+    if (Object.keys(req.query).length) {
+      next();
+      return;
+    }
+    res.redirect(302, '/' + encodeURIComponent(defaultSite));
+  });
+
   // Serve static files from /browser
   server.get(
     /.*\..*/,

@@ -1,13 +1,18 @@
 // Sodastream: sign-in and SmartEdit for every Spartacus storefront host of THIS environment.
 // Works unchanged on d1, d2 and d3: hosts come from the environment's own ccv2.services.jsapps.url.N
-// (one per JS storefront endpoint in Cloud Portal), nothing is hard-coded to a domain.
+// (one per JS storefront endpoint in Cloud Portal) plus https://<app>.<this environment's domain> for
+// every app in APP_HOSTS (CCv2 routes those host names to the app even without an endpoint).
+// Nothing is hard-coded to a domain.
 //
 // What it sets (database, per environment):
 //  1. OAuth client mobile_android_public_<site> for every site in SITES (Spartacus 221121 asks for a
 //     site-specific client), plus the plain mobile_android_public fallback: public, ROLE_CLIENT, scope
 //     basic, authorization_code + refresh_token. Redirect URIs for every storefront host:
 //     https://host, https://host/<site>, https://host/<site>/oauth-callback, https://host/oauth-callback
-//     (Spartacus redirects to <page origin>/<site>). Existing redirect URIs are kept.
+//     (the dynamic apps always use mobile_android_public_<site> and <page origin>/<site>).
+//     Existing redirect URIs are kept. An empty loginPageUri (= the authorization server's own login
+//     form, works on any host) is only set to Spartacus' login page when every storefront host is an
+//     allowed login page host. An existing loginPageUri is left as it is.
 //  2. Authorization server CORS (CorsConfigurationProperty, context authorizationserver):
 //     allowedOriginPatterns = https://*.<this environment's domain> (+ localhost), credentials allowed.
 //  3. SmartEdit whiteListedStorefronts: the storefront hosts are added.
@@ -25,6 +30,9 @@ def SITES = []
 // Site -> first label of the storefront host that should open it in SmartEdit (e.g. 'casishop' for
 // https://casishop.<env domain>). Entries whose host is not a storefront endpoint here are skipped.
 def PREVIEW_HOSTS = ['casi-spa': 'casishop']
+// JS storefront apps (js-storefront/manifest.json) whose host https://<app>.<env domain> is served by
+// name routing, with or without a Cloud Portal endpoint.
+def APP_HOSTS = ['dynamicb2cstore', 'dynamicb2bstore', 'spartacusstore', 'b2bspastore', 'apparelstore', 'casishop']
 // Extra origins, e.g. local development.
 def EXTRA_HOSTS = ['http://localhost:4200', 'https://localhost:4200']
 // ---------------------------------------------------------------------------------------------------
@@ -32,18 +40,29 @@ def EXTRA_HOSTS = ['http://localhost:4200', 'https://localhost:4200']
 def cfg = de.hybris.platform.util.Config
 def out = []
 
-def jsHosts = (0..49).collect { cfg.getParameter('ccv2.services.jsapps.url.' + it) }
+def endpointHosts = (0..49).collect { cfg.getParameter('ccv2.services.jsapps.url.' + it) }
         .findAll { it }.collect { it.trim().replaceAll('/+$', '') }.unique()
-if (!jsHosts) {
-  println 'No ccv2.services.jsapps.url.N found: this environment has no JS storefront endpoints. Nothing changed.'
+// This environment's domain, e.g. <subscription>-d1-public.model-t.cc.commerce.ondemand.com
+def apiUrl = cfg.getParameter('ccv2.services.api.url.0') ?: endpointHosts[0]
+if (!apiUrl) {
+  println 'Neither ccv2.services.api.url.0 nor ccv2.services.jsapps.url.N is set: not a CCv2 environment? Nothing changed.'
   return
 }
+def envDomain = apiUrl.replaceFirst('^https?://', '').split('/')[0].replaceFirst('^[^.]+\\.', '')
+def jsHosts = (endpointHosts + APP_HOSTS.collect { 'https://' + it + '.' + envDomain }).unique()
 def HOSTS = (jsHosts + EXTRA_HOSTS).unique()
 out << 'storefront hosts (this environment): ' + jsHosts.join(', ')
 
 def sites = SITES ?: flexibleSearchService.search(
         "SELECT {pk} FROM {CMSSite} WHERE {active}=1 AND {uid} LIKE '%-spa'").result*.uid.sort()
 out << 'sites: ' + sites.join(', ')
+
+// Login page hosts allowed at startup (same parsing as the authorization server: comma list, each
+// entry reduced to its host). Spartacus' own login page can only be used when all hosts are listed.
+def hostOf = { String u -> try { new URI(u).host ?: u } catch (e) { u } }
+def allowedLoginHosts = (cfg.getParameter('authserver.oauthclientdetails.loginpageuri.allowed.hosts') ?: '')
+        .split(',')*.trim().findAll { it }.collect { hostOf(it) }
+def missingLoginHosts = jsHosts.collect { hostOf(it) }.findAll { !allowedLoginHosts.contains(it) }
 
 // 1. OAuth clients -------------------------------------------------------------------------------
 def findClient = { String id ->
@@ -59,7 +78,7 @@ def upsertClient = { String id, List<String> redirects ->
   client.authorizedGrantTypes = ['authorization_code', 'refresh_token'] as Set
   def before = (client.registeredRedirectUri ?: []) as Set
   client.registeredRedirectUri = (before + redirects) as Set
-  if (!client.loginPageUri) client.loginPageUri = 'https://{redirectUriHost}/login'
+  if (!client.loginPageUri && !missingLoginHosts) client.loginPageUri = 'https://{redirectUriHost}/login'
   modelService.save(client)
   out << 'client ' + id + (created ? ' (new)' : '') + ': +' + (client.registeredRedirectUri - before).size() + ' redirect URIs'
 }
@@ -82,8 +101,6 @@ def putCors = { String key, String value ->
 // One wildcard pattern for this environment's domain (the value column is too short for a host list):
 // https://*.<subscription>-<env>-public.model-t.cc.commerce.ondemand.com covers every storefront
 // endpoint here, including ones added later. Existing explicit allowedOrigins are left as they are.
-def apiUrl = cfg.getParameter('ccv2.services.api.url.0') ?: jsHosts[0]
-def envDomain = apiUrl.replaceFirst('^https?://', '').split('/')[0].replaceFirst('^[^.]+\\.', '')
 def patterns = (['https://*.' + envDomain] + EXTRA_HOSTS).unique().join(' ')
 putCors('allowedOriginPatterns', patterns)
 if (!cors('allowCredentials')) putCors('allowCredentials', 'true')
@@ -116,15 +133,11 @@ PREVIEW_HOSTS.each { siteUid, label ->
   out << 'preview ' + siteUid + ': ' + before + ' -> ' + site.previewURL
 }
 
-// Startup property (Cloud Portal) -----------------------------------------------------------------
-// Same parsing as the authorization server: comma list, each entry reduced to its host.
-def hostOf = { String u -> try { new URI(u).host ?: u } catch (e) { u } }
-def current = (cfg.getParameter('authserver.oauthclientdetails.loginpageuri.allowed.hosts') ?: '')
-        .split(',')*.trim().findAll { it }.collect { hostOf(it) }
-def missing = jsHosts.collect { hostOf(it) }.findAll { !current.contains(it) }
-out << (missing ? 'CHECK: login page hosts missing ' + missing.join(', ') +
-        ' - the manifest value is ${ccv2.services.jsapps.url.0..9}; remove any Cloud Portal service property' +
-        ' that overrides authserver.oauthclientdetails.loginpageuri.allowed.hosts, then restart.'
+// Startup property -------------------------------------------------------------------------------
+out << (missingLoginHosts ? 'NOTE: login page hosts not allowed: ' + missingLoginHosts.join(', ') +
+        ' - sign-in uses the authorization server login form. For Spartacus login page add JS endpoints' +
+        ' for these apps (the manifest lists ${ccv2.services.jsapps.url.0..9}) and remove any Cloud Portal' +
+        ' service property overriding authserver.oauthclientdetails.loginpageuri.allowed.hosts, then restart.'
         : 'login page hosts: every storefront host is allowed')
 
 println out.join('\n')
