@@ -37,6 +37,23 @@ cfg.setBillToPartnerFunctionCode('BP', EN)
 modelService.save(cfg)
 out << 'SAPConfiguration ' + NAME + ' saved'
 
+// Reference sales-area mappings (sapmodel, Backoffice > SAP Integration > Reference Distribution Channel /
+// Division). Without a row for the sales area, checkout fails with "No result for the given example
+// [ReferenceDistributionChannelMappingModel] ... {distChannel=10, salesOrganization=DE10}". BE6 uses the
+// channel and division themselves as reference values for conditions and customer/material data.
+def SORG = cfg.sapcommon_salesOrganization, CH = cfg.sapcommon_distributionChannel, DIV = cfg.sapcommon_division
+def chMap = flexibleSearchService.search("SELECT {pk} FROM {ReferenceDistributionChannelMapping} WHERE {salesOrganization}=?s AND {distChannel}=?c", [s: SORG, c: CH]).result[0] ?: modelService.create('ReferenceDistributionChannelMapping')
+chMap.salesOrganization = SORG; chMap.distChannel = CH
+chMap.refDistChannelConditions = chMap.refDistChannelConditions ?: CH
+chMap.refDistChannelCustMat = chMap.refDistChannelCustMat ?: CH
+modelService.save(chMap)
+def divMap = flexibleSearchService.search("SELECT {pk} FROM {ReferenceDivisionMapping} WHERE {salesOrganization}=?s AND {division}=?d", [s: SORG, d: DIV]).result[0] ?: modelService.create('ReferenceDivisionMapping')
+divMap.salesOrganization = SORG; divMap.division = DIV
+divMap.refDivisionConditions = divMap.refDivisionConditions ?: DIV
+divMap.refDivisionCustomer = divMap.refDivisionCustomer ?: DIV
+modelService.save(divMap)
+out << 'reference mappings ' + SORG + ': channel ' + CH + ' -> ' + chMap.refDistChannelConditions + '/' + chMap.refDistChannelCustMat + ', division ' + DIV + ' -> ' + divMap.refDivisionConditions + '/' + divMap.refDivisionCustomer
+
 // Shipping: Commerce delivery mode -> S/4 shipping condition 01
 def modes = ['standard-net', 'premium-net'].collect { code ->
   def dm = deliveryModeService.getDeliveryModeForCode(code)
