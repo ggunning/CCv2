@@ -79,6 +79,8 @@ import { OrganizationUserRegistrationFeatureModule } from './features/organizati
 import { OrganizationUnitOrderFeatureModule } from './features/organization/organization-unit-order-feature.module';
 import { ProductFutureStockFeatureModule } from './features/product/product-future-stock-feature.module';
 import { ProductConfiguratorFeatureModule } from './features/product-configurator/product-configurator-feature.module';
+import { S4omFeatureModule } from './features/s4om/s4om-feature.module';
+import { RequestedDeliveryDateFeatureModule } from './features/requested-delivery-date/requested-delivery-date-feature.module';
 
 @NgModule({
   declarations: [],
@@ -158,6 +160,9 @@ import { ProductConfiguratorFeatureModule } from './features/product-configurato
     OrganizationUnitOrderFeatureModule,
     ProductFutureStockFeatureModule,
     ProductConfiguratorFeatureModule,
+    // SAP S/4HANA Order Management (B2B): after CartBaseFeatureModule (CartBaseRootModule)
+    S4omFeatureModule,
+    RequestedDeliveryDateFeatureModule,
   ],
   providers: [
     provideFeatureToggles({

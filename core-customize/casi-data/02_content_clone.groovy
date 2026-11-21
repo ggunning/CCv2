@@ -42,9 +42,18 @@ def tgt = versionOf('Online')
 def inVersion = { String type, cv -> flexibleSearchService.search("SELECT {pk} FROM {" + type + "} WHERE {catalogVersion}=?cv", [cv: cv]).result }
 def byUid = { String type, cv -> inVersion(type, cv).collectEntries { [(it.uid): it] } }
 def runs = { String s -> STAGE == 'all' || STAGE == s }
+// modelService.clone also copies many-to-many relations, and saving the copy writes those links on the
+// SOURCE side too: a cloned component keeps `slots` and was added to the powertools-spa slots it came
+// from (it showed twice there). So back-references are cleared before the save; prepare() then sets the
+// target-side links. Nothing in the source catalog is ever saved.
+def BACK_REFS = ['slots', 'links', 'pages', 'navigationNodes']
 def cloneInto = { item, Closure prepare ->
   def copy = modelService.clone(item)
   copy.catalogVersion = tgt
+  BACK_REFS.each { attr ->
+    try { if (modelService.getAttributeValue(copy, attr) instanceof Collection) modelService.setAttributeValue(copy, attr, []) }
+    catch (ignored) { }   // the type has no such attribute
+  }
   prepare(copy)
   modelService.save(copy)
   copy
@@ -179,6 +188,12 @@ if (runs('dedupe')) {
   }
   log << 'deduped slots: ' + fixed
 }
+
+// 8. check: no source slot may hold a component of the target catalog ----------------------
+def leaked = flexibleSearchService.search(
+  "SELECT {s.pk} FROM {ContentSlot AS s JOIN ElementsForSlot AS r ON {r.source}={s.pk} JOIN AbstractCMSComponent AS c ON {r.target}={c.pk}} " +
+  "WHERE {s.catalogVersion}=?f AND {c.catalogVersion}=?t", [f: fromCv, t: tgt]).totalCount
+log << 'source slots holding ' + TGT + ' components: ' + leaked + (leaked ? '  <-- REPAIR NEEDED in ' + FROM_CATALOG : '')
 
 println log.join('\n')
 println 'errors: ' + errors.size()

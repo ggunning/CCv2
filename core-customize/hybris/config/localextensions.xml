@@ -268,16 +268,38 @@
   <!-- Sodastream custom: sample service interface over OCC with a test page (bin/custom/sodastreamocc) -->
   <extension name='sodastreamocc' />
 
-<!-- Configuring Required Extensions and AddOns for SAP Commerce integration with SAP Cloud Platform Integration -->
-<!-- https://help.sap.com/viewer/product/SAP_COMMERCE_INTEGRATIONS/latest -->
-  <!--<extension name='sapcpiadapter'/>
-  <extension name='sapcpiorderexchange'/>
-  <extension name='ysaporderfulfillment'/>
-  <extension name='integrationbackoffice'/>
-  <extension name='sapcoreconfigurationbackoffice'/>
-  <extension name='sapmodelbackoffice'/>
-  <extension name='saporderexchangebackoffice'/>
-  <extension name='sapcoreaddon'/>-->    
+<!-- SAP Cloud Integration module (CPI): outbound orders, needed by the CPQ order exchange below -->
+<!-- https://help.sap.com/docs/SAP_COMMERCE_INTEGRATIONS (Integrations Reference > Modules) -->
+  <extension name='sapcpiadapter' />
+  <extension name='sapcpiorderexchange' />
+  <extension name='sapcpiorderexchangeb2b' />
+
+<!-- SAP CPQ Integration for Configurable Products: configure products modelled in SAP CPQ.
+     Destinations to the CPQ tenant are set in Backoffice (API registry). -->
+  <extension name='cpqproductconfigservices' />
+  <extension name='cpqproductconfigfacades' />
+  <extension name='cpqproductconfigocc' />
+  <extension name='cpqproductconfigorderexchange' />
+  <extension name='cpqproductconfigquoteexchange' />
+
+<!-- SAP CPQ Integration for Quote 2.0: quotes replicated between Commerce and SAP CPQ through
+     SAP Cloud Integration (also needed for CPQ quote -> S/4HANA order). Quote 1.0
+     (sapquoteintegration) is the older alternative and is not combined with 2.0. -->
+  <extension name='sapcpqquoteintegration' />
+  <extension name='sapcpqquotefacades' />
+  <extension name='sapcpqquoteintegrationocc' />
+
+<!-- SAP Customer Data Cloud (CDC / Gigya) integration, B2C and B2B. The site keys are set per site
+     in Backoffice. gigyaloginaddon / gigyab2bloginaddon are Accelerator storefront add-ons; this build
+     has no Accelerator storefront, so the composable storefront uses gigyawebservices / gigyab2bwebservices. -->
+  <extension name='gigyaservices' />
+  <extension name='gigyafacades' />
+  <extension name='gigyabackoffice' />
+  <extension name='gigyawebservices' />
+  <extension name='gigyab2bservices' />
+  <extension name='gigyab2bfacades' />
+  <extension name='gigyab2bbackoffice' />
+  <extension name='gigyab2bwebservices' />
 
 
   </extensions>

@@ -1,7 +1,8 @@
 // Sodastream: sign-in and SmartEdit for every Spartacus storefront host of THIS environment.
 // Works unchanged on d1, d2 and d3: hosts come from the environment's own ccv2.services.jsapps.url.N
 // (one per JS storefront endpoint in Cloud Portal) plus https://<app>.<this environment's domain> for
-// every app in APP_HOSTS (CCv2 routes those host names to the app even without an endpoint).
+// every app in APP_HOSTS (each of those hosts still needs its own JS storefront endpoint in Cloud Portal
+// to answer; listing it here only registers it for sign-in in advance).
 // Nothing is hard-coded to a domain.
 //
 // What it sets (database, per environment):
@@ -14,10 +15,17 @@
 //     form, works on any host) is only set to Spartacus' login page when every storefront host is an
 //     allowed login page host. An existing loginPageUri is left as it is.
 //  2. Authorization server CORS (CorsConfigurationProperty, context authorizationserver):
-//     allowedOriginPatterns = https://*.<this environment's domain> (+ localhost), credentials allowed.
+//     allowedOriginPatterns = https://*.<this environment's domain> (+ localhost), credentials allowed,
+//     allowedOrigins = localhost only when it is missing or "*" ("*" with credentials = HTTP 500 on sign-in).
 //  3. SmartEdit whiteListedStorefronts: the storefront hosts are added.
-//  4. CMSSite.previewURL for sites in PREVIEW_HOSTS: the existing path on that storefront host, ending in
-//     /cx-preview (the dynamic apps' storefrontPreviewRoute).
+//  4. CMSSite.previewURL (where SmartEdit opens the site): for sites in PREVIEW_HOSTS on that storefront
+//     host; every other site whose preview URL is empty, relative or on localhost goes to dynamicb2bstore
+//     (B2B channel) or dynamicb2cstore. The existing path is kept and ends in /cx-preview (the dynamic
+//     apps' storefrontPreviewRoute). Preview URLs on any other host are left as they are.
+//  5. OAuth client smartedit, which SmartEdit (2211) signs in with: public, authorization_code with PKCE +
+//     refresh_token, scope basic + permissionswebservices, redirect <backoffice host>/smartedit. Without it
+//     the SmartEdit login fails. (smartedit.sso.enabled=true only adds a "Sign in with SSO" button, which
+//     needs SAML single sign-on; the normal sign-in works with this client.)
 // Login page hosts: authserver.oauthclientdetails.loginpageuri.allowed.hosts is set in manifest.json from
 // ${ccv2.services.jsapps.url.0..9}, so CCv2 fills in this environment's storefront hosts at startup.
 // The script only CHECKS it; a mismatch usually means a Cloud Portal service property overrides it.
@@ -30,9 +38,11 @@ def SITES = []
 // Site -> first label of the storefront host that should open it in SmartEdit (e.g. 'casishop' for
 // https://casishop.<env domain>). Entries whose host is not a storefront endpoint here are skipped.
 def PREVIEW_HOSTS = ['casi-spa': 'casishop']
-// JS storefront apps (js-storefront/manifest.json) whose host https://<app>.<env domain> is served by
-// name routing, with or without a Cloud Portal endpoint.
-def APP_HOSTS = ['dynamicb2cstore', 'dynamicb2bstore', 'spartacusstore', 'b2bspastore', 'apparelstore', 'casishop']
+// JS storefront apps (js-storefront/manifest.json) whose host https://<app>.<env domain> gets sign-in.
+// The host only answers once Cloud Portal has a JS storefront endpoint for it (no endpoint = TLS error).
+def APP_HOSTS = ['dynamicb2cstore', 'dynamicb2bstore', 'spartacusstore', 'b2bspastore', 'apparelstore', 'casishop', 'pulsestore']
+// SmartEdit hosts besides this environment's backoffice (ccv2.services.backoffice.url.0).
+def SMARTEDIT_EXTRA_HOSTS = ['https://localhost:9002']
 // Extra origins, e.g. local development.
 def EXTRA_HOSTS = ['http://localhost:4200', 'https://localhost:4200']
 // ---------------------------------------------------------------------------------------------------
@@ -100,9 +110,19 @@ def putCors = { String key, String value ->
 }
 // One wildcard pattern for this environment's domain (the value column is too short for a host list):
 // https://*.<subscription>-<env>-public.model-t.cc.commerce.ondemand.com covers every storefront
-// endpoint here, including ones added later. Existing explicit allowedOrigins are left as they are.
+// endpoint here, including ones added later.
 def patterns = (['https://*.' + envDomain] + EXTRA_HOSTS).unique().join(' ')
 putCors('allowedOriginPatterns', patterns)
+// allowedOrigins must never be "*" here: the platform default corsfilter.authorizationserver.allowedOrigins=*
+// together with allowCredentials=true makes Spring reject every request that has an Origin header, so
+// /authorizationserver/oauth/token answers HTTP 500 on every storefront. A database row overrides the
+// property, so write an explicit list when it is missing or "*" (the patterns above cover the storefronts).
+// Any other explicit value is left as it is.
+def origins = cors('allowedOrigins')?.value?.trim()
+if (!origins || origins.split(/[\s,]+/).contains('*')) {
+  putCors('allowedOrigins', EXTRA_HOSTS.join(' '))
+  out << 'authorizationserver CORS allowedOrigins: ' + EXTRA_HOSTS.join(' ') + ' (was ' + (origins ?: 'the property default *') + ')'
+}
 if (!cors('allowCredentials')) putCors('allowCredentials', 'true')
 if (!cors('allowedMethods')) putCors('allowedMethods', 'GET HEAD OPTIONS PATCH PUT POST DELETE')
 if (!cors('allowedHeaders')) putCors('allowedHeaders', 'origin content-type accept authorization')
@@ -119,11 +139,20 @@ modelService.save(seCfg)
 out << 'SmartEdit whiteListedStorefronts: ' + allowed.join(', ')
 
 // 4. Preview URLs --------------------------------------------------------------------------------
-PREVIEW_HOSTS.each { siteUid, label ->
+def previewTargets = [:] + PREVIEW_HOSTS
+sites.each { uid ->
+  if (previewTargets.containsKey(uid)) return
+  def s = flexibleSearchService.search("SELECT {pk} FROM {CMSSite} WHERE {uid}=?u", [u: uid]).result[0]
+  def url = s?.previewURL ?: ''
+  if (!url || !(url ==~ /(?i)^https?:.*/) || url ==~ /(?i)^https?:\/\/localhost([:\/].*)?$/) {
+    previewTargets[uid] = (s?.channel?.code == 'B2B') ? 'dynamicb2bstore' : 'dynamicb2cstore'
+  }
+}
+previewTargets.each { siteUid, label ->
   def host = jsHosts.find { it.replaceFirst('^https?://', '').split(/\./)[0] == label }
   def site = flexibleSearchService.search("SELECT {pk} FROM {CMSSite} WHERE {uid}=?u", [u: siteUid]).result[0]
   if (!site) { out << 'preview ' + siteUid + ': site not found, skipped'; return }
-  if (!host) { out << 'preview ' + siteUid + ': no storefront endpoint "' + label + '" here, skipped'; return }
+  if (!host) { out << 'preview ' + siteUid + ': no storefront host "' + label + '" here, skipped'; return }
   def path = (site.previewURL ?: '/' + siteUid).replaceFirst('^https?://[^/]+', '')
   if (!path.startsWith('/')) path = '/' + path
   path = path.replaceAll('/+$', '').replaceAll('/cx-preview$', '') + '/cx-preview'
@@ -132,6 +161,21 @@ PREVIEW_HOSTS.each { siteUid, label ->
   modelService.save(site)
   out << 'preview ' + siteUid + ': ' + before + ' -> ' + site.previewURL
 }
+
+// 5. SmartEdit OAuth client ------------------------------------------------------------------------
+def boHosts = ((0..9).collect { cfg.getParameter('ccv2.services.backoffice.url.' + it) }.findAll { it }
+        .collect { it.trim().replaceAll('/+$', '') } + SMARTEDIT_EXTRA_HOSTS).unique()
+def se = findClient('smartedit')
+def seCreated = !se
+if (seCreated) { se = modelService.create('OAuthClientDetails'); se.clientId = 'smartedit' }   // set on create only
+se.public = true
+se.authorities = ['ROLE_CLIENT'] as Set
+se.scope = ((se.scope ?: []) + ['basic', 'permissionswebservices']) as Set
+se.authorizedGrantTypes = ((se.authorizedGrantTypes ?: []) + ['authorization_code', 'refresh_token']) as Set
+def seBefore = (se.registeredRedirectUri ?: []) as Set
+se.registeredRedirectUri = (seBefore + boHosts.collect { it + '/smartedit' }) as Set
+modelService.save(se)
+out << 'client smartedit' + (seCreated ? ' (new)' : '') + ': redirect URIs ' + se.registeredRedirectUri.sort().join(', ')
 
 // Startup property -------------------------------------------------------------------------------
 out << (missingLoginHosts ? 'NOTE: login page hosts not allowed: ' + missingLoginHosts.join(', ') +
