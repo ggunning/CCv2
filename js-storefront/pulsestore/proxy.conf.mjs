@@ -18,5 +18,14 @@ export default {
   // Spartacus joins the base URL and a CMS picture's path with two slashes (//medias/...);
   // a Commerce server accepts that, the dev server has to be told
   '^//medias': { ...rule, rewrite: (path) => path.replace(/^\/+/, '/') },
-  '/authorizationserver': rule,
+  // Sign-in: keep the server's redirects and cookies on the dev server's origin, so the sign-in form and
+  // the saved authorize request share one session; the browser never talks to the system directly,
+  // so its Origin header is not passed on (the server's CORS set-up does not matter locally)
+  '/authorizationserver': {
+    ...rule,
+    autoRewrite: true,
+    protocolRewrite: 'http',
+    cookieDomainRewrite: '',
+    configure: (proxy) => proxy.on('proxyReq', (proxyReq) => proxyReq.removeHeader('origin')),
+  },
 };
