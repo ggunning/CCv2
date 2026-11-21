@@ -1,3 +1,5 @@
+// SUPERSEDED: use ../sodastream-data/01_storefront_signin_and_smartedit.groovy (any environment).
+// This script has the d3 casishop host hard-coded; on d1/d2 it would register d3's host.
 // CASI Shop — sign-in for the hosted composable storefront (2211-jdk21 authorization code flow + PKCE).
 // Per SAP Help "Installing SAP Commerce Cloud 2211-jdk21 for use with Composable Storefront" and the
 // CCv2 notes in SAP Community ("SAP Commerce Cloud with Composable Storefront and SmartEdit: Config

@@ -31,22 +31,34 @@ determined for DE10 (orders stay incomplete for delivery; returns then can't ref
 
 ## Data scripts (apply through HAC, in this order)
 
+Easiest: LandscapeCommander runs them in order on any environment, skips what is already there and
+checks the result (works on d1, d2 and d3; nothing here is tied to one environment's hosts):
+
+    python main.py casi status --env d1          # read-only; --env repeatable, default d1 d2 d3
+    python main.py casi run --env d1 --dry-run
+    python main.py casi run --env d1             # stops before 06 until the credential is set:
+    python main.py casi credential --env d1      # run by a person: copies the S/4 password from .env
+
+Sign-in is set up by `../sodastream-data/01_storefront_signin_and_smartedit.groovy` (step `signin`),
+which reads this environment's storefront hosts itself. `08_storefront_signin.groovy` has the d3 host
+hard-coded and is superseded by it.
+
 | File | What |
 |---|---|
 | `01_catalog_products.impex` | `casiProductCatalog`, categories, both products, EUR prices, stock in `casi_warehouse` |
 | `02_content_clone.groovy` | copy of the B2B powertools-spa CMS into `casiContentCatalog:Online` |
 | `03_store_b2b.impex` | store `casi` (B2B checkout, ATP formula, warehouse delivery modes), B2B unit `1000002`, cost center, buyer `casi.buyer@example.com` (no password) |
-| `04_site_solr.impex` | site `casi-spa` (the Solr part of this file is superseded by 04b) |
+| `04_site_solr.impex` | site `casi-spa` (Solr is all in 04b) |
 | `04b_solr.groovy` | search config `casiIndex` saved as one graph; run again with `INDEX = true` to index |
 | `05_casi_retarget.groovy` | CASI navigation, homepage hero, carousels, returns component on the order page |
 | `06_s4_destinations.groovy` | the consumed destinations to S/4 (needs the credential below) |
 | `07_s4om_store_config.groovy` | SAP base store configuration `casiS4Configuration` (S/4OM settings, destination mapping), `EUR.sapCode` |
-| `08_storefront_signin.groovy` | OAuth clients `mobile_android_public[_casi-spa]` and authorization server CORS for the storefront host |
+| ~~`08_storefront_signin.groovy`~~ | superseded by `../sodastream-data/01_storefront_signin_and_smartedit.groovy` (d3 host hard-coded) |
 | `09_checkout_smoke_test.groovy` | B2B checkout as the buyer through the checkout facades; `PLACE_ORDER = true` places an order in S/4 |
 | `10_product_images.py` | product pictures "CASI Ontologie" and "CASI Helping Hands Service": one SVG per image format in `images/` (detail reduced for small sizes); `--upload` sends them to the tenant and re-indexes `casiIndex` |
 
-Passwords are never in these files. LandscapeCommander `scripts/casi_s4_credential.py`, run by a person,
-sets the S/4 credential `casiS4hcBE6Credential` and the buyer's password from `.env`.
+Passwords are never in these files. LandscapeCommander `python main.py casi credential --env <env>`, run by a
+person, sets the S/4 credential `casiS4hcBE6Credential` and the buyer's password from `.env`.
 
 ## Gotchas found on supernova
 

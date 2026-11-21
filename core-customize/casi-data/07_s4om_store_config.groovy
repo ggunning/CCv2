@@ -71,17 +71,23 @@ def ids = [s4omOrderSimulateDestination: 'S4OMORDERSIMULATEDESTINATION', s4omOrd
            billingDestination: 'BILLINGDESTINATION', billingPDFDestination: 'BILLINGPDFDESTINATION',
            s4omDocumentHeaderAPIDestination: 'S4OMORDERDOCUMENTHEADERDESTINATION',
            s4omDocumentItemAPIDestination: 'S4OMORDERDOCUMENTITEMDESTINATION']
-def mapped = flexibleSearchService.search("SELECT {pk} FROM {SAPConsumedDestinationEntry} WHERE {sapConfiguration}=?c", [c: cfg]).result*.consumedDestination*.id
-ids.each { id, key ->
-  if (id in mapped) return
-  def dest = flexibleSearchService.search("SELECT {pk} FROM {ConsumedDestination} WHERE {id}=?id", [id: id]).result[0]
-  if (!dest) { out << 'WARN: destination missing: ' + id; return }
-  def e = modelService.create('SAPConsumedDestinationEntry')
-  e.consumedDestination = dest; e.sapConfiguration = cfg
-  e.destinationKey = enumerationService.getEnumerationValue('SAPDestinationKey', key)
+// Only destinations of OUR target (06_s4_destinations.groovy): the S/4OM extension ships inactive sample
+// destinations with the same ids (s4omOrderDestination, billingDestination, ... on tester.hana.ondemand.com),
+// and a lookup by id alone maps the store to those samples, so every order call goes to the sample host.
+def TARGET = flexibleSearchService.search("SELECT {pk} FROM {DestinationTarget} WHERE {id}='casiS4hcBE6'").result[0]
+if (!TARGET) { out << 'STOP: destination target casiS4hcBE6 missing: run 06_s4_destinations.groovy first' }
+def entries = flexibleSearchService.search("SELECT {pk} FROM {SAPConsumedDestinationEntry} WHERE {sapConfiguration}=?c", [c: cfg]).result
+if (TARGET) ids.each { id, key ->
+  def dest = flexibleSearchService.search("SELECT {pk} FROM {ConsumedDestination} WHERE {id}=?id AND {destinationTarget}=?t", [id: id, t: TARGET]).result[0]
+  if (!dest) { out << 'WARN: destination missing in casiS4hcBE6: ' + id; return }
+  def keyEnum = enumerationService.getEnumerationValue('SAPDestinationKey', key)
+  def e = entries.find { it.destinationKey == keyEnum } ?: entries.find { it.consumedDestination?.id == id }
+  if (!e) { e = modelService.create('SAPConsumedDestinationEntry'); e.sapConfiguration = cfg }
+  if (e.consumedDestination != dest && e.consumedDestination) out << 'repointed ' + key + ': ' + e.consumedDestination.id + ' @ ' + e.consumedDestination.destinationTarget?.id + ' -> casiS4hcBE6'
+  e.consumedDestination = dest; e.destinationKey = keyEnum
   modelService.save(e)
 }
-out << 'destination mapping: ' + flexibleSearchService.search("SELECT {pk} FROM {SAPConsumedDestinationEntry} WHERE {sapConfiguration}=?c", [c: cfg]).result*.consumedDestination*.id
+out << 'destination mapping: ' + flexibleSearchService.search("SELECT {pk} FROM {SAPConsumedDestinationEntry} WHERE {sapConfiguration}=?c", [c: cfg]).result.collect { it.destinationKey?.code + ' -> ' + it.consumedDestination.id + ' @ ' + it.consumedDestination.destinationTarget?.id }.sort().join(', ')
 
 // Base store
 def store = baseStoreService.getBaseStoreForUid('casi')
