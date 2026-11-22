@@ -1,0 +1,46 @@
+<section class="casi-tickets casi-documents" aria-labelledby="casi-documents-title">
+  <h2 id="casi-documents-title">{{ list()?.title || title() }}</h2>
+
+  @if (list(); as list) {
+    @if (list.documents.length) {
+      <div class="casi-tickets__scroll">
+        <table class="casi-documents__table" role="table">
+          <thead role="rowgroup">
+            <tr role="row">
+              @for (column of list.columns; track column.key) {
+                <th scope="col" role="columnheader">{{ column.label }}</th>
+              }
+              @if (list.referenceType) { <th scope="col" role="columnheader"><span class="cx-visually-hidden">Ticket</span></th> }
+            </tr>
+          </thead>
+          <tbody role="rowgroup">
+            @for (document of list.documents; track document.id) {
+              <tr role="row">
+                @for (column of list.columns; track column.key) {
+                  <td role="cell" [attr.data-label]="column.label" [class.casi-documents__blank]="!document.values[column.key]">
+                    @switch (column.type) {
+                      @case ('date') { {{ document.values[column.key] | date: 'mediumDate' }} }
+                      @case ('datetime') { {{ document.values[column.key] | date: 'medium' }} }
+                      @default { {{ document.values[column.key] }} }
+                    }
+                  </td>
+                }
+                @if (list.referenceType) {
+                  <td role="cell">
+                    <a [routerLink]="[]" [queryParams]="{ view: null, ticket: 'new', about: list.referenceType + ':' + document.id }"
+                       queryParamsHandling="merge" [attr.aria-label]="'Open a ticket about ' + document.id">Open a ticket</a>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p class="casi-tickets__hint">Nothing here yet.</p>
+    }
+  }
+
+  @if (loading()) { <p class="casi-tickets__hint" role="status">Loading…</p> }
+  @if (failure(); as failure) { <p class="casi-tickets__error" role="alert">{{ failure }}</p> }
+</section>

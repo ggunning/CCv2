@@ -1,6 +1,9 @@
 // CASI Shop — consumed destinations to S/4HANA Cloud BE6 (OData V2), per SAP Help
 // "Configuring Backoffice for SAP S/4HANA Order Management" (+ Consumed Destination, Billing Invoice,
-// Subsequent Document Flow), plus casiCustomerReturnDestination for the casireturnsocc extension.
+// Subsequent Document Flow), plus casiCustomerReturnDestination for the casireturnsocc extension and the
+// quotation, contract and delivery destinations for the documents of the casiserviceocc extension
+// (the S/4 communication user must be allowed to call API_SALES_QUOTATION_SRV, API_SALES_CONTRACT_SRV and
+// API_OUTBOUND_DELIVERY_SRV: each needs its communication arrangement in S/4).
 // One Basic credential: username LC_API_USER (S/4 communication user). The PASSWORD IS NOT SET HERE:
 // enter it in Backoffice > System > API > Credentials > casiS4hcBE6Credential.
 // Re-runnable (finds by id). Run in HAC scripting with commit ON.
@@ -33,14 +36,21 @@ def defs = [
   ['s4omDocumentHeaderAPIDestination', 'API_SALES_ORDER_SRV', 'A_SalesOrderSubsqntProcFlow'],
   ['s4omDocumentItemAPIDestination', 'API_SALES_ORDER_SRV', 'A_SalesOrderItmSubsqntProcFlow'],
   ['casiCustomerReturnDestination', 'API_CUSTOMER_RETURN_SRV', 'A_CustomerReturn'],
+  ['casiSalesQuotationDestination', 'API_SALES_QUOTATION_SRV', 'A_SalesQuotation'],
+  ['casiSalesContractDestination', 'API_SALES_CONTRACT_SRV', 'A_SalesContract'],
+  ['casiOutboundDeliveryDestination', 'API_OUTBOUND_DELIVERY_SRV;v=0002', 'A_OutbDeliveryHeader'],
 ]
 defs.each { id, service, entity ->
   def root = HOST + '/sap/opu/odata/sap/' + service + '/'
-  def endpoint = flexibleSearchService.search("SELECT {pk} FROM {Endpoint} WHERE {id}=?id AND {version}='v1'", [id: id + 'Endpoint']).result[0] ?: modelService.create('Endpoint')
-  endpoint.id = id + 'Endpoint'; endpoint.version = 'v1'; endpoint.name = service + ' (' + entity + ')'; endpoint.specUrl = root + META
+  def endpoint = flexibleSearchService.search("SELECT {pk} FROM {Endpoint} WHERE {id}=?id AND {version}='v1'", [id: id + 'Endpoint']).result[0]
+  // id and version can only be set when the endpoint is created
+  if (!endpoint) { endpoint = modelService.create('Endpoint'); endpoint.id = id + 'Endpoint'; endpoint.version = 'v1' }
+  endpoint.name = service + ' (' + entity + ')'; endpoint.specUrl = root + META
   modelService.save(endpoint)
-  def dest = flexibleSearchService.search("SELECT {pk} FROM {ConsumedDestination} WHERE {id}=?id AND {destinationTarget}=?t", [id: id, t: target]).result[0] ?: modelService.create('ConsumedDestination')
-  dest.id = id; dest.url = root; dest.endpoint = endpoint; dest.credential = cred; dest.destinationTarget = target; dest.active = true
+  def dest = flexibleSearchService.search("SELECT {pk} FROM {ConsumedDestination} WHERE {id}=?id AND {destinationTarget}=?t", [id: id, t: target]).result[0]
+  // id and target can only be set when the destination is created
+  if (!dest) { dest = modelService.create('ConsumedDestination'); dest.id = id; dest.destinationTarget = target }
+  dest.url = root; dest.endpoint = endpoint; dest.credential = cred; dest.active = true
   dest.additionalProperties = [csrfURL: root + META, entity: entity]
   modelService.save(dest)
   out << id + ' -> ' + root + ' (entity ' + entity + ')'

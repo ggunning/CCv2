@@ -1,4 +1,5 @@
-import { NgModule } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { inject, isDevMode, NgModule } from '@angular/core';
 import { translationChunksConfig, translationsEn } from '@spartacus/assets';
 import {
   FeaturesConfig,
@@ -30,6 +31,11 @@ import {
         },
       },
     }),
+    // `npm start` only: the dev server proxies /occ and /medias (proxy.conf.mjs), so the API is on
+    // the page's own origin. Deployed, CCv2 puts the real API host into index.html's meta tag.
+    provideConfigFactory(() =>
+      isDevMode() ? <OccConfig>{ backend: { occ: { baseUrl: inject(DOCUMENT).location.origin } } } : {},
+    ),
     provideConfig(<SiteContextConfig>{
       context: {
         currency: ['EUR'],

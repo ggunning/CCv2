@@ -134,7 +134,8 @@
               "buildTarget": "casishop:build:production,noSsr"
             },
             "development": {
-              "buildTarget": "casishop:build:development,noSsr"
+              "buildTarget": "casishop:build:development,noSsr",
+              "proxyConfig": "proxy.conf.mjs"
             }
           },
           "defaultConfiguration": "development"

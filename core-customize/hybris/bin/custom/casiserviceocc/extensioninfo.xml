@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+ CASI: customer self-service. Customers of the shop list, open, answer and close cases of their company in
+ SAP Sales and Service Cloud Version 2, and see the company's documents from SAP S/4HANA (invoices, returns,
+ quotations, contracts, deliveries) and from Sales and Service Cloud. Everything is read and written live.
+ OCC extension (name ends in "occ"): its web-spring.xml under resources/occ/v2/casiserviceocc/web/spring
+ is imported into the commercewebservices web context (help.sap.com: "Creating an OCC Extension").
+-->
+<extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
+    <extension abstractclassprefix="Generated" classprefix="Casiserviceocc" description="CASI: customer self-service over OCC (Sales and Service Cloud cases, S/4HANA documents)"
+               managername="CasiserviceoccManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="casiserviceocc">
+        <requires-extension name="commercewebservices"/>
+        <requires-extension name="apiregistryservices"/>
+        <requires-extension name="b2bcommerce"/>
+        <!-- the S/4 OData client (casiS4ODataClient) for the documents read from S/4HANA -->
+        <requires-extension name="casireturnsocc"/>
+        <coremodule generated="true" manager="de.hybris.platform.jalo.extension.GenericManager" packageroot="com.casi.serviceocc"/>
+        <meta key="classpathgen" value="false"/>
+    </extension>
+</extensioninfo>

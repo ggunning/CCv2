@@ -62,5 +62,10 @@
         <p class="casi-returns__empty">No returns for this order yet.</p>
       }
     }
+
+    <p class="casi-returns__hint">
+      A question about this order?
+      <a [routerLink]="['/my-account/support-tickets']" [queryParams]="{ ticket: 'new', about: 'order:' + order.code }">Open a ticket</a>
+    </p>
   </section>
 }

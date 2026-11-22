@@ -14,6 +14,8 @@ BE6** (my4102318). Storefront: `js-storefront/casishop`.
 | PDF invoices | SAP standard | `billingDestination`, `billingPDFDestination` (S/4 SAP_COM_0120); storefront `@spartacus/pdf-invoices` |
 | Schedule lines, requested delivery date | SAP standard | `@spartacus/s4om`, `@spartacus/requested-delivery-date` |
 | Request a return; list returns per order | **Custom** (S/4OM has no returns; SAP's returns need CPI) | extension `casireturnsocc`: `GET/POST /occ/v2/{site}/users/{user}/s4returns` → S/4 customer return (CBAR, `API_CUSTOMER_RETURN_SRV`); storefront component `CasiS4ReturnsComponent` on order details |
+| Service tickets: list, open (also about an order, invoice or return), answer, close and reopen cases of the customer's company | **Custom** (SAP's ticket integration is for C4C V1 through CPI) | extension `casiserviceocc`: `GET/POST /occ/v2/{site}/users/{user}/ssctickets`, `GET .../ssctickets/{code}`, `POST .../ssctickets/{code}/messages`, `POST .../ssctickets/{code}/status` → cases in SAP Sales and Service Cloud V2 (REST `case-service`, live, nothing stored in Commerce); storefront: My Account > Customer Service (`CasiServiceHubComponent`) |
+| Documents of the customer's company: invoices, returns, quotations (S/4), orders with the sales team (Sales and Service Cloud), registered products with their warranty and installations (Sales and Service Cloud); contracts and deliveries once S/4 allows it | **Custom** | extension `casiserviceocc`: `GET /occ/v2/{site}/users/{user}/selfservice` and `.../selfservice/{kind}` → live tables; storefront: tabs on the Customer Service page, each row can open a ticket about it |
 
 The S/4 Order Management module is **B2B only**, so the CASI Shop is a B2B site. The B2B unit uid is
 the S/4 sold-to (`1000002`, "CASI Demo Company"); product codes are the S/4 product IDs.
@@ -57,10 +59,74 @@ hard-coded and is superseded by it.
 | `09_checkout_smoke_test.groovy` | B2B checkout as the buyer through the checkout facades; `PLACE_ORDER = true` places an order in S/4 |
 | `10_product_images.py` | product pictures "CASI Ontologie" and "CASI Helping Hands Service": one SVG per image format in `images/` (detail reduced for small sizes); `--upload` sends them to the tenant and re-indexes `casiIndex` |
 | `11_occ_client.impex` | OCC API client `lc_occ_client` (client credentials, `ROLE_TRUSTED_CLIENT`) for scripted orders and invoice look-ups as the buyer; no secret in the file |
+| `12_ssc_tickets_destination.groovy` | consumed destination `casiSscCaseDestination` to Sales and Service Cloud (needs credential `casiSscCredential`; the host comes from `C360SSC_BASE_URL`) with the processor and case types for new tickets |
 
 Passwords are never in these files. LandscapeCommander `python main.py casi credential --env <env>`, run by a
 person, sets the S/4 credential `casiS4hcBE6Credential`, the buyer's password and the `lc_occ_client` secret
 (`{env}_OCC_CLIENT_SECRET`, generated into `.env` on first use) from `.env`.
+
+## Customer self-service (extension `casiserviceocc`)
+
+One page, My Account > Customer Service, with tabs: **Tickets** and one tab per kind of document.
+Nothing is stored in Commerce; every call reads or writes the other system live.
+
+**Who sees what.** The B2B unit uid is the S/4 customer number. S/4 documents are limited by
+`SoldToParty` = that number; Sales and Service Cloud data by the account that carries the number as
+an external ID. All buyers of a company see the company's tickets and documents.
+
+**Tickets** are cases in Sales and Service Cloud. A ticket opened in the shop has origin
+`SELF_SERVICE`; its description and every later message start with a line naming the buyer, and a
+ticket opened from a document or an order also says `Regarding: Invoice 90000004`. Customers see the
+description and the notes that are not internal (note type `S000`); internal comments (`S002`) stay
+in Sales and Service Cloud. To answer a customer, an agent adds a normal (not internal) note.
+"Close ticket" sets the case to Completed (`05`), "Reopen ticket" a completed case to In Process
+(`02`); a closed case (`06`) stays closed.
+
+**Documents** come from the list of sources in `SelfServiceController` (one entry per kind: where it
+is read, how it is limited to the company, its columns). `casiserviceocc.documents` says which kinds
+the shop offers:
+
+| Kind | From | Needs |
+|---|---|---|
+| `products` | Sales and Service Cloud `registered-product-service` (serial number, product, warranty) | works |
+| `installedbase` | Sales and Service Cloud `installed-base-service` | works |
+| `invoices` | S/4 `API_BILLING_DOCUMENT_SRV` (`billingDestination`) | works |
+| `returns` | S/4 `API_CUSTOMER_RETURN_SRV` (`casiCustomerReturnDestination`) | works |
+| `quotations` | S/4 `API_SALES_QUOTATION_SRV` (`casiSalesQuotationDestination`) | works, no quotations in BE6 yet |
+| `sscorders` | Sales and Service Cloud `sales-order-service` | works |
+| `appointments` | Sales and Service Cloud `appointment-service` | works, off by default |
+| `contracts` | S/4 `API_SALES_CONTRACT_SRV` (`casiSalesContractDestination`) | off: the S/4 communication user is not allowed yet; columns not verified |
+| `deliveries` | S/4 `API_OUTBOUND_DELIVERY_SRV` (`casiOutboundDeliveryDestination`) | off: same |
+
+A warranty has no customer of its own in Sales and Service Cloud: it shows as a column of the registered
+product it is assigned to. Demo data (created 2026-11-22 over the API): warranty 1 "CASI 2-year product
+warranty", installed base 1 "CASI Demo Company - Walldorf office", registered products `CASI-ONT-0001`
+(with the warranty) and `CASI-ONT-0002`. These two services filter with `account/id eq '<id>'` (slash and
+quotes) and want the ETag in `If-Match` without its quotes.
+
+Not built, and why: warranty dates and which installation a product belongs to (no API field found for
+either); service orders (the service is there, but no data, so the filter by company could not be
+verified); service contracts, entitlements and a knowledge base (not on this tenant); ticket
+attachments (the API user gets 403 on the document service); open items and prices (S/4 does not
+allow the communication user; BE6 has no finance set-up).
+
+Settings: `casiserviceocc/project.properties`; for the tickets the destination's additional
+properties win (`processor`, `caseTypes`, `origin`, `priority`, `closeStatus`, `reopenStatus`). A
+case cannot be saved without a processor, and the API user is no employee, so new cases go to the
+configured one.
+
+Set-up on an environment (after a build with `casiserviceocc` is deployed):
+
+    python main.py casi credential --env d1      # run by a person: also copies C360SSC_API_USER/PASS
+    python main.py casi run --env d1 --only destinations --only sscdest
+
+No CMS change: the page `/my-account/support-tickets` keeps its flex component
+`SupportTicketHistoryComponent`, which the casishop storefront maps to the service hub.
+
+Try it before deploying: `python -m casi.ssc_tickets_dev --env d3` (LandscapeCommander) is a stand-in
+with the same contract (`--self-test` checks tickets and documents without a shop);
+`SSC_TICKETS_DEV=http://localhost:4201 npm start` in `js-storefront/casishop` sends the self-service
+calls to it (see `proxy.conf.mjs`).
 
 ## Gotchas found on supernova
 

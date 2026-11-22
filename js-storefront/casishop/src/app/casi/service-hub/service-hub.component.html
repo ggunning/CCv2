@@ -1,0 +1,22 @@
+@if (kinds().length) {
+  <nav class="casi-hub" aria-label="Customer service">
+    <ul>
+      <li>
+        <a [routerLink]="[]" [queryParams]="{ view: null, ticket: null, about: null }" queryParamsHandling="merge"
+           [attr.aria-current]="view() === tickets ? 'page' : null">Tickets</a>
+      </li>
+      @for (kind of kinds(); track kind.key) {
+        <li>
+          <a [routerLink]="[]" [queryParams]="{ view: kind.key, ticket: null, about: null }" queryParamsHandling="merge"
+             [attr.aria-current]="view() === kind.key ? 'page' : null">{{ kind.title }}</a>
+        </li>
+      }
+    </ul>
+  </nav>
+}
+
+@if (view() === tickets) {
+  <casi-ssc-tickets />
+} @else {
+  <casi-documents [kind]="view()" [title]="viewTitle()" />
+}

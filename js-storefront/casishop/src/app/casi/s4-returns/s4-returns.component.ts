@@ -2,6 +2,7 @@ import { AsyncPipe, DatePipe } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import {
   GlobalMessageService,
   GlobalMessageType,
@@ -45,7 +46,7 @@ const PROCESS_STATUS: Record<string, string> = {
  */
 @Component({
   selector: 'casi-s4-returns',
-  imports: [AsyncPipe, DatePipe, FormsModule],
+  imports: [AsyncPipe, DatePipe, FormsModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './s4-returns.component.html',
 })

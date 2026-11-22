@@ -1,0 +1,136 @@
+<section class="casi-tickets" aria-labelledby="casi-tickets-title">
+  @if (selected() === newTicket) {
+    <a class="casi-tickets__back" [routerLink]="[]" [queryParams]="toList" queryParamsHandling="merge">All tickets</a>
+    <h2 id="casi-tickets-title">Open a ticket</h2>
+    @if (about(); as about) {
+      <p class="casi-tickets__about">
+        Regarding <strong>{{ about.label }}</strong>
+        <a [routerLink]="[]" [queryParams]="{ about: null }" queryParamsHandling="merge">Remove</a>
+      </p>
+    }
+    <form class="casi-tickets__form" (ngSubmit)="submit()">
+      <label for="casi-ticket-type">What is it about?</label>
+      <select id="casi-ticket-type" class="form-control" name="type" [(ngModel)]="type" required>
+        @for (option of list()?.types ?? []; track option.code) {
+          <option [value]="option.code">{{ option.name }}</option>
+        }
+      </select>
+
+      <label for="casi-ticket-subject">Subject</label>
+      <input id="casi-ticket-subject" class="form-control" type="text" name="subject" maxlength="255"
+             [(ngModel)]="subject" required autocomplete="off" />
+
+      <label for="casi-ticket-description">Description</label>
+      <textarea id="casi-ticket-description" class="form-control" name="description" rows="6" maxlength="5000"
+                [(ngModel)]="description" required aria-describedby="casi-ticket-description-hint"></textarea>
+      <p id="casi-ticket-description-hint" class="casi-tickets__hint">
+        Include order or invoice numbers if you have them. Our service team answers here.
+      </p>
+
+      <div class="casi-tickets__actions">
+        <button type="button" class="btn btn-tertiary" (click)="show(null)">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="!canSubmit()">
+          {{ sending() ? 'Opening…' : 'Open ticket' }}
+        </button>
+      </div>
+    </form>
+  } @else if (selected()) {
+    <a class="casi-tickets__back" [routerLink]="[]" [queryParams]="toList" queryParamsHandling="merge">All tickets</a>
+    @if (ticket(); as ticket) {
+      <h2 id="casi-tickets-title">Ticket {{ ticket.id }}: {{ ticket.subject }}</h2>
+      <dl class="casi-tickets__facts">
+        <div><dt>Status</dt><dd><span class="casi-tickets__status" [attr.data-status]="ticket.status">{{ ticket.statusName }}</span></dd></div>
+        <div><dt>Type</dt><dd>{{ ticket.typeName }}</dd></div>
+        @if (ticket.reference; as reference) { <div><dt>Regarding</dt><dd>{{ reference.label }}</dd></div> }
+        @if (ticket.createdOn) { <div><dt>Opened</dt><dd>{{ ticket.createdOn | date: 'medium' }}</dd></div> }
+        @if (ticket.processor) { <div><dt>Handled by</dt><dd>{{ ticket.processor }}</dd></div> }
+      </dl>
+
+      <h3 class="casi-tickets__subtitle">Messages</h3>
+      <ol class="casi-tickets__messages">
+        @for (message of ticket.messages ?? []; track $index) {
+          <li class="casi-tickets__message" [class.casi-tickets__message--own]="message.fromCustomer">
+            <p class="casi-tickets__author">
+              <strong>{{ message.author || 'Service team' }}</strong>
+              @if (!message.fromCustomer) { <span>Service team</span> }
+              @if (message.createdOn) { <time [attr.datetime]="message.createdOn">{{ message.createdOn | date: 'medium' }}</time> }
+            </p>
+            <p class="casi-tickets__text">{{ message.text }}</p>
+          </li>
+        }
+      </ol>
+
+      @if (ticket.canReply) {
+        <form class="casi-tickets__form" (ngSubmit)="send(ticket)">
+          <label for="casi-ticket-reply">Add a message</label>
+          <textarea id="casi-ticket-reply" class="form-control" name="reply" rows="4" maxlength="5000" [(ngModel)]="reply"></textarea>
+          <div class="casi-tickets__actions">
+            @if (ticket.canClose) {
+              <button type="button" class="btn btn-tertiary" [disabled]="sending()" (click)="setStatus(ticket, 'close')">
+                Close ticket
+              </button>
+            }
+            <button type="submit" class="btn btn-primary" [disabled]="!reply.trim() || sending()">
+              {{ sending() ? 'Sending…' : 'Send message' }}
+            </button>
+          </div>
+        </form>
+      } @else {
+        <div class="casi-tickets__actions casi-tickets__actions--start">
+          <p class="casi-tickets__hint">This ticket is {{ ticket.statusName.toLowerCase() }}.</p>
+          @if (ticket.canReopen) {
+            <button type="button" class="btn btn-secondary" [disabled]="sending()" (click)="setStatus(ticket, 'reopen')">
+              Reopen ticket
+            </button>
+          }
+        </div>
+      }
+    } @else {
+      <h2 id="casi-tickets-title">Ticket</h2>
+    }
+  } @else {
+    <div class="casi-tickets__head">
+      <div>
+        <h2 id="casi-tickets-title">Service tickets</h2>
+        @if (list(); as list) { <p class="casi-tickets__hint">Tickets of {{ list.account.name }}, handled by our service team.</p> }
+      </div>
+      @if (list()) {
+        <button type="button" class="btn btn-primary" (click)="show(newTicket)">Open a ticket</button>
+      }
+    </div>
+
+    @if (list()) {
+      @if (tickets().length) {
+        <div class="casi-tickets__scroll">
+          <table class="casi-tickets__table" role="table">
+            <thead role="rowgroup">
+              <tr role="row">
+                <th scope="col" role="columnheader">Ticket</th><th scope="col" role="columnheader">Subject</th><th scope="col" role="columnheader">Type</th>
+                <th scope="col" role="columnheader">Status</th><th scope="col" role="columnheader">Opened</th>
+              </tr>
+            </thead>
+            <tbody role="rowgroup">
+              @for (row of tickets(); track row.code) {
+                <tr role="row">
+                  <td role="cell"><span class="casi-tickets__label">Ticket </span>{{ row.id }}</td>
+                  <td role="cell">
+                    <a [routerLink]="[]" [queryParams]="{ ticket: row.code }" queryParamsHandling="merge">{{ row.subject }}</a>
+                    @if (row.reference; as reference) { <span class="casi-tickets__ref">{{ reference.label }}</span> }
+                  </td>
+                  <td role="cell">{{ row.typeName }}</td>
+                  <td role="cell"><span class="casi-tickets__status" [attr.data-status]="row.status">{{ row.statusName }}</span></td>
+                  <td role="cell">{{ row.createdOn | date: 'mediumDate' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="casi-tickets__hint">No tickets yet. Open one and our service team will get back to you here.</p>
+      }
+    }
+  }
+
+  @if (loading()) { <p class="casi-tickets__hint" role="status">Loading…</p> }
+  @if (failure(); as failure) { <p class="casi-tickets__error" role="alert">{{ failure }}</p> }
+</section>

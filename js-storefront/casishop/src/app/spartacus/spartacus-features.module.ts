@@ -70,7 +70,6 @@ import { ProductVariantsFeatureModule } from './features/product/product-variant
 import { ProductImageZoomFeatureModule } from './features/product/product-image-zoom-feature.module';
 import { TagManagementFeatureModule } from './features/tracking/tag-management-feature.module';
 import { QualtricsFeatureModule } from './features/qualtrics/qualtrics-feature.module';
-import { CustomerTicketingFeatureModule } from './features/customer-ticketing/customer-ticketing-feature.module';
 import { PickupInStoreFeatureModule } from './features/pickup-in-store/pickup-in-store-feature.module';
 import { OrganizationAdministrationFeatureModule } from './features/organization/organization-administration-feature.module';
 import { OrganizationOrderApprovalFeatureModule } from './features/organization/organization-order-approval-feature.module';
@@ -83,6 +82,7 @@ import { S4omFeatureModule } from './features/s4om/s4om-feature.module';
 import { RequestedDeliveryDateFeatureModule } from './features/requested-delivery-date/requested-delivery-date-feature.module';
 import { PdfInvoicesFeatureModule } from './features/pdf-invoices/pdf-invoices-feature.module';
 import { CasiReturnsModule } from '../casi/casi-returns.module';
+import { CasiTicketsModule } from '../casi/casi-tickets.module';
 
 @NgModule({
   declarations: [],
@@ -153,7 +153,6 @@ import { CasiReturnsModule } from '../casi/casi-returns.module';
     ProductImageZoomFeatureModule,
     TagManagementFeatureModule,
     QualtricsFeatureModule,
-    CustomerTicketingFeatureModule,
     PickupInStoreFeatureModule,
     OrganizationAdministrationFeatureModule,
     OrganizationOrderApprovalFeatureModule,
@@ -168,6 +167,9 @@ import { CasiReturnsModule } from '../casi/casi-returns.module';
     PdfInvoicesFeatureModule,
     // CASI: S/4 customer returns on the order details page (casireturnsocc)
     CasiReturnsModule,
+    // CASI: Sales and Service Cloud cases as service tickets in My Account (casiserviceocc);
+    // they take the place of Commerce's own tickets (@spartacus/customer-ticketing)
+    CasiTicketsModule,
   ],
   providers: [
     provideFeatureToggles({

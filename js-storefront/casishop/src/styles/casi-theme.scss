@@ -286,3 +286,375 @@ header {
     padding-inline-start: 1.1rem;
   }
 }
+
+// Service tickets in My Account (casi-ssc-tickets): cases in SAP Sales and Service Cloud.
+.casi-tickets {
+  display: grid;
+  gap: 1rem;
+  margin-block: 2rem;
+  padding: 1.25rem;
+  border: 1px solid var(--cx-color-medium);
+  border-radius: 8px;
+  background: var(--cx-color-inverse);
+
+  h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    overflow-wrap: anywhere;
+  }
+
+  &__subtitle {
+    margin: 0.5rem 0 0;
+    font-size: 1.1rem;
+  }
+
+  &__head,
+  &__actions,
+  &__author {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__head {
+    justify-content: space-between;
+  }
+
+  &__actions {
+    justify-content: flex-end;
+  }
+
+  &__hint {
+    margin: 0;
+    color: var(--cx-color-secondary);
+  }
+
+  &__error {
+    margin: 0;
+    color: var(--cx-color-danger);
+    font-weight: 600;
+  }
+
+  &__back {
+    justify-self: start;
+    font-weight: 600;
+
+    &::before {
+      content: '\2039\00a0';
+    }
+  }
+
+  &__scroll {
+    overflow-x: auto;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 0.6rem 0.5rem;
+      border-bottom: 1px solid var(--cx-color-light);
+      text-align: start;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--cx-color-secondary);
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+
+    td:first-child {
+      font-variant-numeric: tabular-nums;
+    }
+
+    td:nth-child(2) {
+      min-width: 14rem;
+      font-weight: 600;
+    }
+
+    a {
+      text-decoration: underline;
+    }
+  }
+
+  // "Ticket" in front of the number where the column headings are not shown (narrow screens)
+  &__label {
+    display: none;
+  }
+
+  // Narrow screens: one ticket per block, subject and status first, the rest on a second line
+  @media (max-width: 767px) {
+    &__table {
+      thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+      }
+
+      tbody,
+      tr {
+        display: grid;
+      }
+
+      tr {
+        grid-template-columns: auto 1fr auto;
+        gap: 0.25rem 0.75rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--cx-color-light);
+        color: var(--cx-color-secondary);
+        font-size: 0.9rem;
+      }
+
+      td {
+        padding: 0;
+        border: 0;
+      }
+
+      td:nth-child(2) {
+        grid-area: 1 / 1 / 2 / 3;
+        min-width: 0;
+        color: var(--cx-color-text);
+        font-size: 1rem;
+      }
+
+      td:nth-child(4) {
+        grid-area: 1 / 3;
+        justify-self: end;
+      }
+
+      td:nth-child(1) {
+        grid-area: 2 / 1;
+      }
+
+      td:nth-child(3) {
+        grid-area: 2 / 2;
+      }
+
+      td:nth-child(5) {
+        grid-area: 2 / 3;
+        text-align: end;
+      }
+    }
+
+    &__label {
+      display: inline;
+    }
+  }
+
+  &__status {
+    display: inline-block;
+    padding: 0.1rem 0.6rem;
+    border-radius: 999px;
+    background: var(--cx-color-light);
+    font-size: 0.85rem;
+    white-space: nowrap;
+
+    &[data-status='COMPLETED'],
+    &[data-status='CLOSED'] {
+      background: transparent;
+      box-shadow: inset 0 0 0 1px var(--cx-color-medium);
+      color: var(--cx-color-secondary);
+    }
+  }
+
+  &__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 2rem;
+    margin: 0;
+
+    dt {
+      color: var(--cx-color-secondary);
+      font-size: 0.85rem;
+      font-weight: 400;
+    }
+
+    dd {
+      margin: 0;
+    }
+  }
+
+  &__messages {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__message {
+    max-width: 46rem;
+    padding: 0.75rem 1rem;
+    border-inline-start: 4px solid var(--cx-color-medium);
+    background: var(--cx-color-background);
+
+    &--own {
+      border-inline-start-color: var(--casi-amber);
+    }
+  }
+
+  &__author {
+    gap: 0.25rem 0.75rem;
+    margin: 0 0 0.35rem;
+    color: var(--cx-color-secondary);
+    font-size: 0.85rem;
+
+    strong {
+      color: var(--cx-color-text);
+      font-size: 1rem;
+    }
+  }
+
+  &__text {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  &__form {
+    display: grid;
+    gap: 0.4rem;
+    max-width: 46rem;
+
+    label {
+      margin: 0.5rem 0 0;
+      font-weight: 600;
+    }
+  }
+}
+
+// Customer Service page: tabs (casi-service-hub) and document tables (casi-documents).
+.casi-hub {
+  margin-block: 2rem -1rem;
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: block;
+    padding: 0.45rem 1rem;
+    border: 1px solid var(--cx-color-medium);
+    border-radius: 999px;
+    background: var(--cx-color-inverse);
+    color: var(--cx-color-text);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      border-color: var(--cx-color-primary);
+    }
+
+    &[aria-current='page'] {
+      border-color: var(--cx-color-primary);
+      background: var(--cx-color-primary);
+      color: var(--cx-color-inverse);
+    }
+  }
+}
+
+.casi-tickets {
+  &__about {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    border-inline-start: 4px solid var(--casi-amber);
+    background: var(--cx-color-background);
+
+    a {
+      text-decoration: underline;
+    }
+  }
+
+  &__ref {
+    display: block;
+    color: var(--cx-color-secondary);
+    font-size: 0.85rem;
+    font-weight: 400;
+  }
+
+  &__actions--start {
+    justify-content: flex-start;
+  }
+}
+
+.casi-documents__table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 0.6rem 0.5rem;
+    border-bottom: 1px solid var(--cx-color-light);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  th {
+    color: var(--cx-color-secondary);
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  td:first-child {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  a {
+    text-decoration: underline;
+    white-space: nowrap;
+  }
+
+  // Narrow screens: one document per block, each value with its column heading in front
+  @media (max-width: 767px) {
+    thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+
+    tbody,
+    tr,
+    td {
+      display: block;
+    }
+
+    tr {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--cx-color-light);
+    }
+
+    // a value the document does not have is left out, not shown as a heading without a value
+    .casi-documents__blank {
+      display: none;
+    }
+
+    td {
+      padding: 0.1rem 0;
+      border: 0;
+
+      &[data-label]::before {
+        content: attr(data-label) ': ';
+        color: var(--cx-color-secondary);
+        font-weight: 400;
+      }
+
+    }
+  }
+}
