@@ -60,6 +60,8 @@ hard-coded and is superseded by it.
 | `10_product_images.py` | product pictures "CASI Ontologie" and "CASI Helping Hands Service": one SVG per image format in `images/` (detail reduced for small sizes); `--upload` sends them to the tenant and re-indexes `casiIndex` |
 | `11_occ_client.impex` | OCC API client `lc_occ_client` (client credentials, `ROLE_TRUSTED_CLIENT`) for scripted orders and invoice look-ups as the buyer; no secret in the file |
 | `12_ssc_tickets_destination.groovy` | consumed destination `casiSscCaseDestination` to Sales and Service Cloud (needs credential `casiSscCredential`; the host comes from `C360SSC_BASE_URL`) with the processor and case types for new tickets |
+| `13_consent_templates.impex` | consent templates of the site `casi-spa` (`MARKETING_NEWSLETTER`, `STORE_USER_INFORMATION`): they belong to the site, so the content clone does not bring them and the cookie banner had nothing to ask |
+| `14_site_setup.groovy` | what sample data gives a sample site and a hand-built one lacks: tax group `de-taxes` on the store and `eu-vat-full` on the products (VAT in cart and checkout), Backoffice groups on the product catalog with a Staged→Online sync job, `cmsmanagergroup` on the content catalog (no content sync job: the pages are cloned into Online, Staged is empty), full and update cron jobs for `casiIndex`, promotion group `casiPromoGrp` on the site |
 
 Passwords are never in these files. LandscapeCommander `python main.py casi credential --env <env>`, run by a
 person, sets the S/4 credential `casiS4hcBE6Credential`, the buyer's password and the `lc_occ_client` secret

@@ -1,0 +1,18 @@
+# CASI 13: consent templates of the site casi-spa. Run after 04 (the site must exist).
+#
+# Consent templates belong to a site, not to a content catalog, so cloning the powertools-spa content
+# (02) brings the cookie banner and the My Account > Consent Management page but nothing to consent to:
+# /occ/v2/casi-spa/users/anonymous/consenttemplates was empty and the banner asked about nothing.
+#
+# exposed = true: a visitor who is not signed in may give it too (it is listed in the banner's dialog).
+# MARKETING_NEWSLETTER is the consent the storefront offers on registration (Spartacus default
+# `anonymousConsents.registerConsent`). The sample sites' PROFILE template (Context-Driven Services
+# tracking) is left out: the CASI Shop has no such tracking.
+# Changing a text a customer has agreed to needs a new row with the next version, not an edit of this one.
+# Re-runnable.
+
+$site=casi-spa
+
+INSERT_UPDATE ConsentTemplate; id[unique=true]        ; version[unique=true]; baseSite(uid)[unique=true]; exposed; name[lang=en]                                  ; description[lang=en]
+                             ; MARKETING_NEWSLETTER   ; 0                   ; $site                     ; true   ; "Send me news and offers from CASI"            ; "CASI may send me news about its products and services by e-mail. I can withdraw this at any time under My Account > Consent Management."
+                             ; STORE_USER_INFORMATION ; 0                   ; $site                     ; true   ; "Remember my details and preferences in this shop" ; "The CASI Shop may store the choices I make here, such as language and what I looked at, to make later visits easier. I can withdraw this at any time under My Account > Consent Management."
