@@ -12,12 +12,27 @@
   --cx-color-dark: #10262e;
   --cx-color-success: #2e7d4f;
   --cx-color-info: #0f5c6e;
-  --cx-color-warning: #b26a00;
+  // 4.5:1+ on white and on the off-white background (#b26a00 was 4.24:1)
+  --cx-color-warning: #9a5b00;
   --cx-color-danger: #b3261e;
   --casi-amber: #e8a33d;
   // Text on the dark header: ~13:1 against --cx-color-dark (the petrol primary is only 2:1 there).
   --casi-on-dark: #e8f1f3;
+  // Text on amber (wordmark badge, hero call to action) and the wordmark on the header band.
+  --casi-on-accent: #10262e;
+  --casi-wordmark: #ffffff;
   --cx-font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+// Theme switcher high-contrast themes: Spartacus sets their palette on the root component and paints
+// the header in the theme background (white / black), so the CASI-only colours follow that palette
+// instead of the dark band: text in the theme text colour, the amber accent in the theme primary.
+.cx-theme-high-contrast-dark,
+.cx-theme-high-contrast-light {
+  --casi-on-dark: var(--cx-color-text);
+  --casi-amber: var(--cx-color-primary);
+  --casi-on-accent: var(--cx-color-background);
+  --casi-wordmark: var(--cx-color-text);
 }
 
 body {
@@ -52,13 +67,42 @@ header {
       text-decoration: underline;
     }
   }
+
+  // The "Hi, <name>" greeting (signed in) sits on the band too; Spartacus colours it as body text.
+  cx-login .cx-login-greet {
+    color: var(--casi-on-dark);
+  }
+
+  // Desktop: the search box label sits on the band. On mobile it drops below the header, so it keeps
+  // the body text colour there.
+  @media (min-width: 768px) {
+    cx-searchbox .cx-input-label {
+      color: var(--casi-on-dark);
+    }
+  }
+
+  // Signed in, cx-login renders the HeaderLinks slot (the My Account flyout) inside itself. The flyout
+  // panel is white, so its items use the body text colour, not the light band colour from above.
+  cx-login cx-navigation-ui .wrapper {
+    a,
+    a:visited,
+    span,
+    button {
+      color: var(--cx-color-text);
+    }
+
+    a:hover,
+    a:focus-visible {
+      color: var(--cx-color-primary);
+    }
+  }
 }
 
 .casi-wordmark {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  color: var(--cx-color-inverse);
+  color: var(--casi-wordmark);
   text-decoration: none;
   font-size: 1.35rem;
   letter-spacing: 0.02em;
@@ -66,7 +110,7 @@ header {
 
   &:hover,
   &:focus-visible {
-    color: var(--cx-color-inverse);
+    color: var(--casi-wordmark);
     text-decoration: none;
   }
 
@@ -82,7 +126,7 @@ header {
     height: 2.1rem;
     border-radius: 6px;
     background: var(--casi-amber);
-    color: var(--cx-color-dark);
+    color: var(--casi-on-accent);
     font-weight: 800;
   }
 
@@ -119,9 +163,22 @@ header {
     padding: 0.65rem 1.4rem;
     border-radius: 6px;
     background: var(--casi-amber);
-    color: var(--cx-color-dark);
+    color: var(--casi-on-accent);
     font-weight: 700;
     text-decoration: none;
+  }
+
+  // High contrast: the gradient would run into the theme's own colours (in HC-Dark --cx-color-dark is
+  // white, under white text), so the hero becomes a plain outlined panel in the theme palette.
+  .cx-theme-high-contrast-dark &,
+  .cx-theme-high-contrast-light & {
+    background: var(--cx-color-background);
+    border: 2px solid var(--cx-color-text);
+    color: var(--cx-color-text);
+
+    p {
+      color: var(--cx-color-text);
+    }
   }
 }
 
