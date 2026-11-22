@@ -145,17 +145,32 @@ public class OrgRegistrationController
 				steps.add(step("S/4HANA", "Company found as customer " + customerNumber, true));
 			}
 
-			// 2. Commerce: unit and user (search restrictions hide units from a visitor, so they are off here)
+			// 2. Commerce: unit and user. Done as admin: the visitor is anonymous, search restrictions hide units
+			// from it, and the CDC B2B extension lets only admins create a top-level unit. The request was
+			// checked above (registration code, input); the session's own user is unchanged afterwards.
 			final String number = customerNumber;
-			final Object created = sessionService.executeInLocalView(new SessionExecutionBody()
+			final Object created;
+			try
 			{
-				@Override
-				public Object execute()
+				created = sessionService.executeInLocalView(new SessionExecutionBody()
 				{
-					searchRestrictionService.disableSearchRestrictions();
-					return createInCommerce(data, number, newCompany);
-				}
-			});
+					@Override
+					public Object execute()
+					{
+						searchRestrictionService.disableSearchRestrictions();
+						return createInCommerce(data, number, newCompany);
+					}
+				}, userService.getAdminUser());
+			}
+			catch (final SscException e)
+			{
+				throw e;
+			}
+			catch (final RuntimeException e)
+			{
+				// Say what was already done in S/4, so the company is not created twice by a retry.
+				return failure(500, "Your account could not be created in the shop: " + e.getMessage(), steps);
+			}
 			steps.add(step("Commerce", String.valueOf(created), true));
 
 			// 3. and 4.: the contact person in S/4, account and contact in Sales and Service Cloud
@@ -206,7 +221,16 @@ public class OrgRegistrationController
 	/** The registration code must be configured and must match; without a configured code the endpoint is closed. */
 	private void checkCode(final Object code)
 	{
-		final String expected = sscClient.setting("registrationCode", "");
+		final String expected;
+		try
+		{
+			expected = sscClient.setting("registrationCode", "");
+		}
+		catch (final SscException e)
+		{
+			// No Sales and Service Cloud destination yet: the shop is not set up for registration.
+			throw new SscException(403, "Registration is not open in this shop");
+		}
 		if (expected.isEmpty())
 		{
 			throw new SscException(403, "Registration is not open in this shop");
