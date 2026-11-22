@@ -300,11 +300,11 @@ public class OrgRegistrationController
 		// Approval happens later in S/4: until someone removes these blocks (Manage Customer Master Data),
 		// the company can sign in and order, but nothing is delivered or invoiced. BE6 has no order block
 		// reasons configured, and a central business partner block does not stop orders.
-		final Map<String, Object> customer = new LinkedHashMap<>();
-		customer.put("DeliveryIsBlocked", Config.getString("casiserviceocc.registration.deliveryBlock", "01"));
-		customer.put("BillingIsBlockedForCustomer", Config.getString("casiserviceocc.registration.billingBlock", "03"));
-		customer.put("to_CustomerSalesArea", List.of(salesArea));
-		company.put("to_Customer", customer);
+		final Map<String, Object> customerData = new LinkedHashMap<>();
+		customerData.put("DeliveryIsBlocked", Config.getString("casiserviceocc.registration.deliveryBlock", "01"));
+		customerData.put("BillingIsBlockedForCustomer", Config.getString("casiserviceocc.registration.billingBlock", "03"));
+		customerData.put("to_CustomerSalesArea", List.of(salesArea));
+		company.put("to_Customer", customerData);
 		final JsonNode created = s4Client.post(BP_DESTINATION, "A_BusinessPartner", company);
 		final String customer = created.path("Customer").asText("");
 		return customer.isEmpty() ? created.path("BusinessPartner").asText() : customer;
