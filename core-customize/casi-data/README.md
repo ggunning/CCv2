@@ -56,9 +56,11 @@ hard-coded and is superseded by it.
 | ~~`08_storefront_signin.groovy`~~ | superseded by `../sodastream-data/01_storefront_signin_and_smartedit.groovy` (d3 host hard-coded) |
 | `09_checkout_smoke_test.groovy` | B2B checkout as the buyer through the checkout facades; `PLACE_ORDER = true` places an order in S/4 |
 | `10_product_images.py` | product pictures "CASI Ontologie" and "CASI Helping Hands Service": one SVG per image format in `images/` (detail reduced for small sizes); `--upload` sends them to the tenant and re-indexes `casiIndex` |
+| `11_occ_client.impex` | OCC API client `lc_occ_client` (client credentials, `ROLE_TRUSTED_CLIENT`) for scripted orders and invoice look-ups as the buyer; no secret in the file |
 
 Passwords are never in these files. LandscapeCommander `python main.py casi credential --env <env>`, run by a
-person, sets the S/4 credential `casiS4hcBE6Credential` and the buyer's password from `.env`.
+person, sets the S/4 credential `casiS4hcBE6Credential`, the buyer's password and the `lc_occ_client` secret
+(`{env}_OCC_CLIENT_SECRET`, generated into `.env` on first use) from `.env`.
 
 ## Gotchas found on supernova
 

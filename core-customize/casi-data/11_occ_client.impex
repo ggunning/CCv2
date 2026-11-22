@@ -1,0 +1,12 @@
+# CASI 11: OCC API client for scripted orders and invoice look-ups (LandscapeCommander `casi order`).
+#
+# lc_occ_client is a confidential trusted client: OAuth2 client_credentials, ROLE_TRUSTED_CLIENT, so a
+# script may act for a named customer through /occ/v2/<site>/users/<uid>/... and /orgUsers/<uid>/...
+# without that customer's password (this Commerce release's authorization server has no password grant).
+#
+# No secret here on purpose: `python main.py casi credential --env <env>` sets it on the environment from
+# .env ({env}_OCC_CLIENT_SECRET, generated on first use). Until then the client cannot get a token.
+# Re-runnable: INSERT_UPDATE leaves an existing secret alone.
+
+INSERT_UPDATE OAuthClientDetails; clientId[unique=true]; authorities        ; scope ; authorizedGrantTypes
+                                ; lc_occ_client        ; ROLE_TRUSTED_CLIENT ; basic ; client_credentials
