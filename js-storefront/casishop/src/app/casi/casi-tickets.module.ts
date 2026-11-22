@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { AuthGuard, CmsConfig, OccConfig, provideConfig } from '@spartacus/core';
+import { OutletPosition, provideOutlet } from '@spartacus/storefront';
+import { CasiApprovalBannerComponent } from './approval-banner/approval-banner.component';
 import { CasiOrgRegistrationComponent } from './org-registration/org-registration.component';
 import { CasiServiceHubComponent } from './service-hub/service-hub.component';
 
@@ -21,6 +23,8 @@ import { CasiServiceHubComponent } from './service-hub/service-hub.component';
  */
 @NgModule({
   providers: [
+    // "Awaiting approval" banner under the header on every page (company not yet approved in S/4)
+    provideOutlet({ id: 'cx-header', position: OutletPosition.AFTER, component: CasiApprovalBannerComponent }),
     provideConfig(<CmsConfig>{
       cmsComponents: {
         SupportTicketHistoryComponent: {
@@ -50,6 +54,7 @@ import { CasiServiceHubComponent } from './service-hub/service-hub.component';
             casiSelfService: 'users/${userId}/selfservice',
             casiSelfServiceKind: 'users/${userId}/selfservice/${kind}',
             casiOrgRegistrations: 'orgregistrations',
+            casiApproval: 'users/${userId}/selfservice/approval',
           },
         },
       },

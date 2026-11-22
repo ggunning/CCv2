@@ -49,7 +49,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * business partners through SAP Cloud Integration); it shows how the pieces can fit together.
  *
  * POST /occ/v2/{baseSiteId}/orgregistrations
- *   {"code":"...", "password":"...",
+ *   {"password":"...",
  *    "company":{"name":"...","street":"...","houseNumber":"...","postalCode":"...","city":"...","country":"DE","vatId":"DE123456789"},
  *    "contact":{"firstName":"...","lastName":"...","email":"..."}}
  *
@@ -64,8 +64,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * Steps 1 and 2 must work; a failure in 3 or 4 does not undo them: the answer lists every step with
  * what happened, and "complete" says whether all of them worked.
  *
- * The endpoint is public (a visitor has no session), so it is closed unless a registration code is
- * configured (setting "registrationCode") and sent with the request. A person who joins a company
+ * The endpoint is public: a visitor has no session. A person who joins a company
  * that already exists in S/4 gets a login that stays disabled until someone enables it in Backoffice:
  * a VAT ID is public, and the login shows that company's tickets and documents.
  */
@@ -115,7 +114,6 @@ public class OrgRegistrationController
 		final List<Map<String, Object>> steps = new ArrayList<>();
 		try
 		{
-			checkCode(request.get("code"));
 			final Registration data = read(request);
 			// Looked up without search restrictions: a visitor's session may not see other users.
 			final Object known = sessionService.executeInLocalView(new SessionExecutionBody()
@@ -138,7 +136,8 @@ public class OrgRegistrationController
 			if (newCompany)
 			{
 				customerNumber = createCompany(data);
-				steps.add(step("S/4HANA", "Company created as customer " + customerNumber, true));
+				steps.add(step("S/4HANA", "Company created as customer " + customerNumber
+						+ ", waiting for approval (delivery and billing blocked)", true));
 			}
 			else
 			{
@@ -146,8 +145,8 @@ public class OrgRegistrationController
 			}
 
 			// 2. Commerce: unit and user. Done as admin: the visitor is anonymous, search restrictions hide units
-			// from it, and the CDC B2B extension lets only admins create a top-level unit. The request was
-			// checked above (registration code, input); the session's own user is unchanged afterwards.
+			// from it, and the CDC B2B extension lets only admins create a top-level unit. The input was
+			// checked above; the session's own user is unchanged afterwards.
 			final String number = customerNumber;
 			final Object created;
 			try
@@ -203,6 +202,8 @@ public class OrgRegistrationController
 			body.put("email", data.email);
 			// Joining an existing company needs someone's approval; see the class comment.
 			body.put("loginEnabled", newCompany);
+			// A new company waits for approval in S/4; for an existing one, the banner reads its state.
+			body.put("approvalPending", newCompany);
 			body.put("complete", complete);
 			body.put("steps", steps);
 			return ResponseEntity.status(HttpStatus.CREATED).body(body);
@@ -215,29 +216,6 @@ public class OrgRegistrationController
 		{
 			// Before anything was created in Commerce: S/4 refused the look-up or the new company.
 			return failure(502, "The company could not be set up in S/4HANA: " + e.getMessage(), steps);
-		}
-	}
-
-	/** The registration code must be configured and must match; without a configured code the endpoint is closed. */
-	private void checkCode(final Object code)
-	{
-		final String expected;
-		try
-		{
-			expected = sscClient.setting("registrationCode", "");
-		}
-		catch (final SscException e)
-		{
-			// No Sales and Service Cloud destination yet: the shop is not set up for registration.
-			throw new SscException(403, "Registration is not open in this shop");
-		}
-		if (expected.isEmpty())
-		{
-			throw new SscException(403, "Registration is not open in this shop");
-		}
-		if (code == null || !expected.equals(String.valueOf(code).strip()))
-		{
-			throw new SscException(403, "The registration code is not correct");
 		}
 	}
 
@@ -319,7 +297,14 @@ public class OrgRegistrationController
 			// VAT registration number: tax category <country>0 (DE0, FR0, ...)
 			company.put("to_BusinessPartnerTax", List.of(Map.of("BPTaxType", data.country + "0", "BPTaxNumber", data.vatId)));
 		}
-		company.put("to_Customer", Map.of("to_CustomerSalesArea", List.of(salesArea)));
+		// Approval happens later in S/4: until someone removes these blocks (Manage Customer Master Data),
+		// the company can sign in and order, but nothing is delivered or invoiced. BE6 has no order block
+		// reasons configured, and a central business partner block does not stop orders.
+		final Map<String, Object> customer = new LinkedHashMap<>();
+		customer.put("DeliveryIsBlocked", Config.getString("casiserviceocc.registration.deliveryBlock", "01"));
+		customer.put("BillingIsBlockedForCustomer", Config.getString("casiserviceocc.registration.billingBlock", "03"));
+		customer.put("to_CustomerSalesArea", List.of(salesArea));
+		company.put("to_Customer", customer);
 		final JsonNode created = s4Client.post(BP_DESTINATION, "A_BusinessPartner", company);
 		final String customer = created.path("Customer").asText("");
 		return customer.isEmpty() ? created.path("BusinessPartner").asText() : customer;

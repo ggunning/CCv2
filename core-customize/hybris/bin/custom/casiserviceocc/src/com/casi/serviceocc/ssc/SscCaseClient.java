@@ -186,8 +186,10 @@ public class SscCaseClient
 	private ConsumedDestinationModel destination()
 	{
 		final String id = Config.getString(DESTINATION_PROPERTY, DEFAULT_DESTINATION);
-		final FlexibleSearchQuery query = new FlexibleSearchQuery("SELECT {pk} FROM {ConsumedDestination} WHERE {id} = ?id");
+		final FlexibleSearchQuery query = new FlexibleSearchQuery(
+				"SELECT {pk} FROM {ConsumedDestination} WHERE {id} = ?id AND {active} = ?active ORDER BY {pk}");
 		query.addQueryParameter("id", id);
+		query.addQueryParameter("active", Boolean.TRUE);
 		final List<ConsumedDestinationModel> result = flexibleSearchService.<ConsumedDestinationModel> search(query).getResult();
 		if (result.isEmpty())
 		{

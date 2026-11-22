@@ -7,6 +7,10 @@
       @if (result.company.isNew) {
         {{ result.company.name }} is customer <strong>{{ result.company.number }}</strong>. You can sign in now with
         {{ result.email }} and the password you chose.
+        @if (result.approvalPending) {
+          We still check new companies: you can order and open service tickets right away, and we deliver and
+          invoice once your company is confirmed.
+        }
       } @else {
         Your company is already our customer <strong>{{ result.company.number }}</strong>. We check new colleagues before
         they can see its orders and tickets: you can sign in with {{ result.email }} as soon as we have confirmed you.
@@ -107,16 +111,6 @@
           <input id="casi-reg-password" class="form-control" type="password" name="password" maxlength="128"
                  autocomplete="new-password" [(ngModel)]="password" required aria-describedby="casi-reg-password-hint" />
           <p id="casi-reg-password-hint" class="casi-tickets__hint">At least 10 characters.</p>
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend>Registration code</legend>
-        <div class="casi-registration__field">
-          <label for="casi-reg-code">Code</label>
-          <input id="casi-reg-code" class="form-control" name="code" maxlength="40" autocomplete="off" [(ngModel)]="code"
-                 required aria-describedby="casi-reg-code-hint" />
-          <p id="casi-reg-code-hint" class="casi-tickets__hint">You received this code from us.</p>
         </div>
       </fieldset>
 

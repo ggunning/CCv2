@@ -751,3 +751,21 @@ header {
     border-inline-start-color: var(--cx-color-danger);
   }
 }
+
+// "Awaiting approval" banner under the header (casi-approval-banner).
+.casi-approval-banner {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--cx-color-medium);
+  background: var(--cx-color-light);
+  color: var(--cx-color-text);
+  text-align: center;
+
+  p {
+    max-width: 60rem;
+    margin: 0 auto;
+  }
+
+  strong {
+    margin-inline-end: 0.35rem;
+  }
+}

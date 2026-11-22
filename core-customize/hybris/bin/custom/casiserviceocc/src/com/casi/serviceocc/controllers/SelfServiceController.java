@@ -214,6 +214,47 @@ public class SelfServiceController
 		}
 	}
 
+	/**
+	 * Whether the caller's company is still waiting for approval in S/4: its customer has a delivery, billing
+	 * or order block. Read live, so the storefront banner goes away as soon as the blocks are removed in S/4.
+	 * GET /occ/v2/{baseSiteId}/users/{userId}/selfservice/approval  {"pending":true|false,"customer":"..."}
+	 * When S/4 cannot be asked, the answer is "not pending": the banner must not block anyone.
+	 */
+	@Secured({ "ROLE_CUSTOMERGROUP", "ROLE_TRUSTED_CLIENT", "ROLE_CUSTOMERMANAGERGROUP" })
+	@GetMapping(value = "/approval", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> getApproval(@PathVariable("baseSiteId") final String baseSiteId,
+			@PathVariable("userId") final String userId)
+	{
+		try
+		{
+			final String customer = customerContext.customerNumber();
+			boolean pending = false;
+			boolean known = true;
+			try
+			{
+				final JsonNode row = s4Client.get(Config.getString("casiserviceocc.destination.approval", "casiBusinessPartnerDestination"),
+						"A_Customer('" + SscCaseClient.encode(customer)
+								+ "')?$format=json&$select=DeliveryIsBlocked,BillingIsBlockedForCustomer,OrderIsBlockedForCustomer");
+				pending = !row.path("DeliveryIsBlocked").asText("").isEmpty() || !row.path("BillingIsBlockedForCustomer").asText("").isEmpty()
+						|| !row.path("OrderIsBlockedForCustomer").asText("").isEmpty();
+			}
+			catch (final S4Exception e)
+			{
+				known = false;
+			}
+			final Map<String, Object> body = new LinkedHashMap<>();
+			body.put("customer", customer);
+			body.put("pending", pending);
+			body.put("known", known);
+			return ResponseEntity.ok(body);
+		}
+		catch (final SscException e)
+		{
+			return CustomerContext.error(e.getStatus(), "SelfServiceError", e.getMessage());
+		}
+	}
+
 	@Secured({ "ROLE_CUSTOMERGROUP", "ROLE_TRUSTED_CLIENT", "ROLE_CUSTOMERMANAGERGROUP" })
 	@GetMapping(value = "/{kind}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody

@@ -65,12 +65,16 @@ public class S4ODataClient
 
 	private ConsumedDestinationModel destination(final String id)
 	{
-		final FlexibleSearchQuery query = new FlexibleSearchQuery("SELECT {pk} FROM {ConsumedDestination} WHERE {id} = ?id");
+		// Only active ones: SAP S/4HANA Order Management ships inactive sample destinations with the same ids
+		// (billingDestination, s4omOrderDestination, ...), and the first match would be the sample.
+		final FlexibleSearchQuery query = new FlexibleSearchQuery(
+				"SELECT {pk} FROM {ConsumedDestination} WHERE {id} = ?id AND {active} = ?active ORDER BY {pk}");
+		query.addQueryParameter("active", Boolean.TRUE);
 		query.addQueryParameter("id", id);
 		final List<ConsumedDestinationModel> result = flexibleSearchService.<ConsumedDestinationModel> search(query).getResult();
 		if (result.isEmpty())
 		{
-			throw new S4Exception(500, "Consumed destination '" + id + "' is not configured");
+			throw new S4Exception(500, "No active consumed destination '" + id + "'");
 		}
 		return result.get(0);
 	}

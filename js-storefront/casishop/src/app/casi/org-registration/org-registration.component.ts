@@ -17,6 +17,8 @@ interface RegistrationResult {
   email: string;
   /** False when the person joined an existing company: someone has to enable the sign-in first. */
   loginEnabled: boolean;
+  /** True when the company waits for approval in S/4 (delivery and billing blocked until then). */
+  approvalPending: boolean;
   /** False when a later step (contact in S/4, Sales and Service Cloud) did not work. */
   complete: boolean;
   steps: RegistrationStep[];
@@ -60,7 +62,6 @@ export class CasiOrgRegistrationComponent {
   company = { name: '', street: '', houseNumber: '', postalCode: '', city: '', country: 'DE', vatId: '' };
   contact = { firstName: '', lastName: '', email: '' };
   password = '';
-  code = '';
 
   canSubmit(): boolean {
     const filled = [
@@ -71,7 +72,6 @@ export class CasiOrgRegistrationComponent {
       this.contact.firstName,
       this.contact.lastName,
       this.contact.email,
-      this.code,
     ].every((value) => value.trim());
     return filled && this.password.length >= 10 && !this.sending();
   }
@@ -83,7 +83,7 @@ export class CasiOrgRegistrationComponent {
     this.sending.set(true);
     this.failure.set(null);
     this.failedSteps.set([]);
-    const body = { code: this.code, password: this.password, company: this.company, contact: this.contact };
+    const body = { password: this.password, company: this.company, contact: this.contact };
     this.http.post<RegistrationResult>(this.occ.buildUrl('casiOrgRegistrations'), body).subscribe({
       next: (result) => {
         this.sending.set(false);

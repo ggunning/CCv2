@@ -146,11 +146,15 @@ in casishop, so no CMS change) → `POST /occ/v2/{site}/orgregistrations` → `O
 Steps 1 and 2 must work; a failure in 3 or 4 is reported in the answer (`steps`, `complete`) and does
 not undo the registration. The same account then serves the tickets and documents above.
 
-Safeguards, because the endpoint is public:
-- It is closed until a registration code is set: `CASI_REGISTRATION_CODE` in LandscapeCommander's `.env`,
-  put on the environment by `casi run --only sscdest` (additional property `registrationCode` of
-  `casiSscCaseDestination`). The form asks for the code.
-- Someone who joins a company that already exists in S/4 gets a login that stays disabled until it is
+**Approval happens later in S/4.** A new company is created in S/4 with a delivery block (`01`) and a
+billing block (`03`) on its customer, and its first person can sign in to the shop at once. They can
+order and open tickets; S/4 takes the orders but does not deliver or invoice them. Someone approves the
+company by removing both blocks in S/4 (Manage Customer Master Data). Until then the shop shows an
+"awaiting approval" banner under the header, read live from S/4 (`GET /users/{user}/selfservice/approval`).
+BE6 has no order block reasons, and a central business partner block does not stop orders, so these two
+blocks are the approval. The codes are settings (`casiserviceocc.registration.deliveryBlock` / `billingBlock`).
+
+The endpoint is public. Someone who joins a company that already exists in S/4 gets a login that stays disabled until it is
   enabled in Backoffice (User > Customers > Login disabled): a VAT ID is public, and the login shows
   that company's tickets and documents. The first person of a new company can sign in at once.
 

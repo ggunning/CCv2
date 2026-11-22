@@ -11,10 +11,8 @@ def HOST = ''
 // types customers can choose. Both override casiserviceocc's project.properties for this environment.
 def PROCESSOR = 'ADMINISTRATOR'
 def CASE_TYPES = 'ZSMP,ZINQ,ZDSR,ZPAA'
-// Company registration (POST /orgregistrations): the code a visitor must enter (empty = registration closed)
-// and the Sales and Service Cloud communication system that stands for S/4 (new accounts get the S/4 number
-// as external ID in it). LandscapeCommander fills both in: CASI_REGISTRATION_CODE in .env and the bridge settings.
-def REGISTRATION_CODE = ''
+// Company registration (POST /orgregistrations): the Sales and Service Cloud communication system that stands
+// for S/4 (new accounts get the S/4 number as external ID in it). LandscapeCommander fills it in from the bridge settings.
 def S4_SYSTEM_ID = ''
 
 def out = []
@@ -48,9 +46,8 @@ def dest = flexibleSearchService.search("SELECT {pk} FROM {ConsumedDestination} 
 if (!dest) { dest = modelService.create('ConsumedDestination'); dest.id = id; dest.destinationTarget = target }
 dest.url = root; dest.endpoint = endpoint; dest.credential = cred; dest.active = true
 def props = [processor: PROCESSOR, caseTypes: CASE_TYPES]
-if (REGISTRATION_CODE) props.registrationCode = REGISTRATION_CODE
 if (S4_SYSTEM_ID) props.s4CommunicationSystemId = S4_SYSTEM_ID
 dest.additionalProperties = props
 modelService.save(dest)
-out << id + ' -> ' + root + ' (processor ' + PROCESSOR + ', case types ' + CASE_TYPES + ', registration ' + (REGISTRATION_CODE ? 'open with a code' : 'closed') + ', S/4 system ' + (S4_SYSTEM_ID ? 'set' : 'not set') + ')'
+out << id + ' -> ' + root + ' (processor ' + PROCESSOR + ', case types ' + CASE_TYPES + ', S/4 system ' + (S4_SYSTEM_ID ? 'set' : 'not set') + ')'
 println out.join('\n')
