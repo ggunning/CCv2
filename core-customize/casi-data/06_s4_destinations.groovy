@@ -39,6 +39,7 @@ def defs = [
   ['casiSalesQuotationDestination', 'API_SALES_QUOTATION_SRV', 'A_SalesQuotation'],
   ['casiSalesContractDestination', 'API_SALES_CONTRACT_SRV', 'A_SalesContract'],
   ['casiOutboundDeliveryDestination', 'API_OUTBOUND_DELIVERY_SRV;v=0002', 'A_OutbDeliveryHeader'],
+  ['casiBusinessPartnerDestination', 'API_BUSINESS_PARTNER', 'A_BusinessPartner'],
 ]
 defs.each { id, service, entity ->
   def root = HOST + '/sap/opu/odata/sap/' + service + '/'

@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { AuthGuard, CmsConfig, OccConfig, provideConfig } from '@spartacus/core';
+import { CasiOrgRegistrationComponent } from './org-registration/org-registration.component';
 import { CasiServiceHubComponent } from './service-hub/service-hub.component';
 
 /**
@@ -12,6 +13,11 @@ import { CasiServiceHubComponent } from './service-hub/service-hub.component';
  * CASI Shop that component is the service hub, so no CMS change is needed; Commerce's own tickets
  * (@spartacus/customer-ticketing) are not part of this storefront. A flex component with the type
  * "CasiServiceHubComponent" shows the same thing on any other page.
+ *
+ * The same goes for the company registration: the shop's /login/register page has the flex component
+ * "OrganizationUserRegistrationComponent", which here is the CASI registration form (company and contact
+ * person, created in S/4HANA, Commerce and Sales and Service Cloud); Spartacus' own organization user
+ * registration is not part of this storefront. Open to visitors, so no guard.
  */
 @NgModule({
   providers: [
@@ -25,6 +31,12 @@ import { CasiServiceHubComponent } from './service-hub/service-hub.component';
           component: CasiServiceHubComponent,
           guards: [AuthGuard],
         },
+        OrganizationUserRegistrationComponent: {
+          component: CasiOrgRegistrationComponent,
+        },
+        CasiOrgRegistrationComponent: {
+          component: CasiOrgRegistrationComponent,
+        },
       },
     }),
     provideConfig(<OccConfig>{
@@ -37,6 +49,7 @@ import { CasiServiceHubComponent } from './service-hub/service-hub.component';
             casiSscTicketStatus: 'users/${userId}/ssctickets/${ticketCode}/status',
             casiSelfService: 'users/${userId}/selfservice',
             casiSelfServiceKind: 'users/${userId}/selfservice/${kind}',
+            casiOrgRegistrations: 'orgregistrations',
           },
         },
       },

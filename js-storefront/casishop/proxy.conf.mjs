@@ -5,7 +5,8 @@
 //   echo https://api.<environment domain> > .occ-target
 // Customer self-service (casiserviceocc) can be tried before the extension is deployed: with
 //   SSC_TICKETS_DEV=http://localhost:4201
-// the ssctickets and selfservice calls go to LandscapeCommander's stand-in (python -m casi.ssc_tickets_dev).
+// the ssctickets, selfservice and orgregistrations calls go to LandscapeCommander's stand-in
+// (python -m casi.ssc_tickets_dev).
 import { existsSync, readFileSync } from 'node:fs';
 
 const file = new URL('./.occ-target', import.meta.url);
@@ -15,7 +16,10 @@ const target =
   'https://localhost:9002';
 const rule = { target, secure: false, changeOrigin: true };
 const tickets = process.env.SSC_TICKETS_DEV
-  ? { '^/occ/v2/[^/]+/users/[^/]+/(ssctickets|selfservice)': { target: process.env.SSC_TICKETS_DEV, changeOrigin: true } }
+  ? {
+      '^/occ/v2/[^/]+/users/[^/]+/(ssctickets|selfservice)': { target: process.env.SSC_TICKETS_DEV, changeOrigin: true },
+      '^/occ/v2/[^/]+/orgregistrations': { target: process.env.SSC_TICKETS_DEV, changeOrigin: true },
+    }
   : {};
 
 export default {

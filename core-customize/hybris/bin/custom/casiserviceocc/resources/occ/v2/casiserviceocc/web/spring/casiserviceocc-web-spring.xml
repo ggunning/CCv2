@@ -23,4 +23,16 @@
         <property name="sscClient" ref="casiSscCaseClient"/>
         <property name="s4Client" ref="casiS4ODataClient"/>
     </bean>
+
+    <!-- Demo: a company and its contact person register and are created in S/4, Commerce and Sales and Service Cloud. -->
+    <bean id="casiOrgRegistrationController" class="com.casi.serviceocc.controllers.OrgRegistrationController">
+        <property name="sscClient" ref="casiSscCaseClient"/>
+        <property name="s4Client" ref="casiS4ODataClient"/>
+        <property name="modelService" ref="modelService"/>
+        <property name="userService" ref="userService"/>
+        <property name="commonI18NService" ref="commonI18NService"/>
+        <property name="flexibleSearchService" ref="flexibleSearchService"/>
+        <property name="sessionService" ref="sessionService"/>
+        <property name="searchRestrictionService" ref="searchRestrictionService"/>
+    </bean>
 </beans>

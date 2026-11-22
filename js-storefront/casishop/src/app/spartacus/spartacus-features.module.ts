@@ -74,7 +74,6 @@ import { PickupInStoreFeatureModule } from './features/pickup-in-store/pickup-in
 import { OrganizationAdministrationFeatureModule } from './features/organization/organization-administration-feature.module';
 import { OrganizationOrderApprovalFeatureModule } from './features/organization/organization-order-approval-feature.module';
 import { OrganizationAccountSummaryFeatureModule } from './features/organization/organization-account-summary-feature.module';
-import { OrganizationUserRegistrationFeatureModule } from './features/organization/organization-user-registration-feature.module';
 import { OrganizationUnitOrderFeatureModule } from './features/organization/organization-unit-order-feature.module';
 import { ProductFutureStockFeatureModule } from './features/product/product-future-stock-feature.module';
 import { ProductConfiguratorFeatureModule } from './features/product-configurator/product-configurator-feature.module';
@@ -157,7 +156,6 @@ import { CasiTicketsModule } from '../casi/casi-tickets.module';
     OrganizationAdministrationFeatureModule,
     OrganizationOrderApprovalFeatureModule,
     OrganizationAccountSummaryFeatureModule,
-    OrganizationUserRegistrationFeatureModule,
     OrganizationUnitOrderFeatureModule,
     ProductFutureStockFeatureModule,
     ProductConfiguratorFeatureModule,
@@ -168,7 +166,8 @@ import { CasiTicketsModule } from '../casi/casi-tickets.module';
     // CASI: S/4 customer returns on the order details page (casireturnsocc)
     CasiReturnsModule,
     // CASI: Sales and Service Cloud cases as service tickets in My Account (casiserviceocc);
-    // they take the place of Commerce's own tickets (@spartacus/customer-ticketing)
+    // they take the place of Commerce's own tickets (@spartacus/customer-ticketing). The module also has the
+    // company registration, which takes the place of Spartacus' organization user registration.
     CasiTicketsModule,
   ],
   providers: [

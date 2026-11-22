@@ -128,6 +128,37 @@ with the same contract (`--self-test` checks tickets and documents without a sho
 `SSC_TICKETS_DEV=http://localhost:4201 npm start` in `js-storefront/casishop` sends the self-service
 calls to it (see `proxy.conf.mjs`).
 
+## Company registration (demo, extension `casiserviceocc`)
+
+Not SAP standard: it shows how a shop could create a company and its contact person everywhere in one
+go. Page `/login/register` (its flex component `OrganizationUserRegistrationComponent` is the CASI form
+in casishop, so no CMS change) → `POST /occ/v2/{site}/orgregistrations` → `OrgRegistrationController`:
+
+1. **S/4**: the company is looked up by VAT ID (`A_BusinessPartnerTaxNumber`); if it is not there it is
+   created as a business partner with the customer roles, the sales area from
+   `casiserviceocc.registration.*` and the VAT ID, and gets its customer number.
+2. **Commerce**: B2B unit (uid = customer number) with address and cost center when new, and the B2B
+   customer with the password chosen on the form.
+3. **S/4**: the contact person (business partner, role `BUP001`) and a `BUR001` relationship to the company.
+4. **Sales and Service Cloud**: the account with the customer number as external ID (types `sap.oitc.888`
+   and `sap.oitc.918` in the S/4 communication system) when it is not there, and the contact person.
+
+Steps 1 and 2 must work; a failure in 3 or 4 is reported in the answer (`steps`, `complete`) and does
+not undo the registration. The same account then serves the tickets and documents above.
+
+Safeguards, because the endpoint is public:
+- It is closed until a registration code is set: `CASI_REGISTRATION_CODE` in LandscapeCommander's `.env`,
+  put on the environment by `casi run --only sscdest` (additional property `registrationCode` of
+  `casiSscCaseDestination`). The form asks for the code.
+- Someone who joins a company that already exists in S/4 gets a login that stays disabled until it is
+  enabled in Backoffice (User > Customers > Login disabled): a VAT ID is public, and the login shows
+  that company's tickets and documents. The first person of a new company can sign in at once.
+
+Needs: destination `casiBusinessPartnerDestination` (`06`), i.e. write access to `API_BUSINESS_PARTNER`
+for the S/4 communication user (SAP_COM_0008), and the Sales and Service Cloud destination (`12`).
+Known limits: a new S/4 customer has no company-code data in BE6, so ordering may stop in S/4; there is
+no check that the VAT ID is real; test data cannot be deleted from S/4.
+
 ## Gotchas found on supernova
 
 - CCv2's XSS filter strips request text like `src=...` from HAC calls: never name a Groovy variable

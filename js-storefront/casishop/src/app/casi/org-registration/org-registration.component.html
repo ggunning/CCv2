@@ -1,0 +1,142 @@
+<section class="casi-tickets casi-registration" aria-labelledby="casi-registration-title">
+  @if (result(); as result) {
+    <h2 id="casi-registration-title" tabindex="-1">
+      {{ result.company.isNew ? 'Your company is registered' : 'You are registered' }}
+    </h2>
+    <p class="casi-registration__lead">
+      @if (result.company.isNew) {
+        {{ result.company.name }} is customer <strong>{{ result.company.number }}</strong>. You can sign in now with
+        {{ result.email }} and the password you chose.
+      } @else {
+        Your company is already our customer <strong>{{ result.company.number }}</strong>. We check new colleagues before
+        they can see its orders and tickets: you can sign in with {{ result.email }} as soon as we have confirmed you.
+      }
+    </p>
+
+    <h3 class="casi-tickets__subtitle">What happened</h3>
+    <ol class="casi-registration__steps">
+      @for (step of result.steps; track $index) {
+        <li [class.casi-registration__step--failed]="!step.ok">
+          <strong>{{ step.system }}</strong>
+          <span>{{ step.ok ? '' : 'Not done: ' }}{{ step.result }}</span>
+        </li>
+      }
+    </ol>
+    @if (!result.complete) {
+      <p class="casi-tickets__error" role="alert">
+        Your registration is saved, but not every system has it yet. You do not need to register again; we will complete it.
+      </p>
+    }
+    @if (result.loginEnabled) {
+      <div class="casi-tickets__actions casi-tickets__actions--start">
+        <a class="btn btn-primary" [routerLink]="['/login']">Sign in</a>
+      </div>
+    }
+  } @else {
+    <h2 id="casi-registration-title">Register your company</h2>
+    <p class="casi-tickets__hint">
+      Tell us about your company and yourself. We set you up as a customer right away, so you can order and open
+      service tickets.
+    </p>
+
+    <form class="casi-registration__form" (ngSubmit)="submit()">
+      <fieldset>
+        <legend>Company</legend>
+        <div class="casi-registration__field casi-registration__field--wide">
+          <label for="casi-reg-company">Company name</label>
+          <input id="casi-reg-company" class="form-control" name="companyName" maxlength="40" autocomplete="organization"
+                 [(ngModel)]="company.name" required />
+        </div>
+        <div class="casi-registration__field">
+          <label for="casi-reg-street">Street</label>
+          <input id="casi-reg-street" class="form-control" name="street" maxlength="60" autocomplete="address-line1"
+                 [(ngModel)]="company.street" required />
+        </div>
+        <div class="casi-registration__field casi-registration__field--short">
+          <label for="casi-reg-house">House number</label>
+          <input id="casi-reg-house" class="form-control" name="houseNumber" maxlength="10" [(ngModel)]="company.houseNumber" />
+        </div>
+        <div class="casi-registration__field casi-registration__field--short">
+          <label for="casi-reg-postal">Postal code</label>
+          <input id="casi-reg-postal" class="form-control" name="postalCode" maxlength="10" autocomplete="postal-code"
+                 [(ngModel)]="company.postalCode" required />
+        </div>
+        <div class="casi-registration__field">
+          <label for="casi-reg-city">City</label>
+          <input id="casi-reg-city" class="form-control" name="city" maxlength="40" autocomplete="address-level2"
+                 [(ngModel)]="company.city" required />
+        </div>
+        <div class="casi-registration__field">
+          <label for="casi-reg-country">Country</label>
+          <select id="casi-reg-country" class="form-control" name="country" autocomplete="country" [(ngModel)]="company.country" required>
+            @for (country of countries; track country.code) {
+              <option [value]="country.code">{{ country.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="casi-registration__field">
+          <label for="casi-reg-vat">VAT ID (optional)</label>
+          <input id="casi-reg-vat" class="form-control" name="vatId" maxlength="15" [(ngModel)]="company.vatId"
+                 aria-describedby="casi-reg-vat-hint" />
+          <p id="casi-reg-vat-hint" class="casi-tickets__hint">
+            For example {{ company.country }}123456789. If your company is already our customer, we find it by this number.
+          </p>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Contact person</legend>
+        <div class="casi-registration__field">
+          <label for="casi-reg-first">First name</label>
+          <input id="casi-reg-first" class="form-control" name="firstName" maxlength="40" autocomplete="given-name"
+                 [(ngModel)]="contact.firstName" required />
+        </div>
+        <div class="casi-registration__field">
+          <label for="casi-reg-last">Last name</label>
+          <input id="casi-reg-last" class="form-control" name="lastName" maxlength="40" autocomplete="family-name"
+                 [(ngModel)]="contact.lastName" required />
+        </div>
+        <div class="casi-registration__field">
+          <label for="casi-reg-email">Email address</label>
+          <input id="casi-reg-email" class="form-control" type="email" name="email" maxlength="240" autocomplete="email"
+                 [(ngModel)]="contact.email" required aria-describedby="casi-reg-email-hint" />
+          <p id="casi-reg-email-hint" class="casi-tickets__hint">You sign in with this address.</p>
+        </div>
+        <div class="casi-registration__field">
+          <label for="casi-reg-password">Password</label>
+          <input id="casi-reg-password" class="form-control" type="password" name="password" maxlength="128"
+                 autocomplete="new-password" [(ngModel)]="password" required aria-describedby="casi-reg-password-hint" />
+          <p id="casi-reg-password-hint" class="casi-tickets__hint">At least 10 characters.</p>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Registration code</legend>
+        <div class="casi-registration__field">
+          <label for="casi-reg-code">Code</label>
+          <input id="casi-reg-code" class="form-control" name="code" maxlength="40" autocomplete="off" [(ngModel)]="code"
+                 required aria-describedby="casi-reg-code-hint" />
+          <p id="casi-reg-code-hint" class="casi-tickets__hint">You received this code from us.</p>
+        </div>
+      </fieldset>
+
+      @if (failure(); as failure) {
+        <div class="casi-tickets__error" role="alert">
+          <p>{{ failure }}</p>
+          @if (failedSteps().length) {
+            <ul>
+              @for (step of failedSteps(); track $index) { <li>{{ step.system }}: {{ step.result }}</li> }
+            </ul>
+          }
+        </div>
+      }
+
+      <div class="casi-tickets__actions">
+        <a class="btn btn-tertiary" [routerLink]="['/login']">I already have a login</a>
+        <button type="submit" class="btn btn-primary" [disabled]="!canSubmit()">
+          {{ sending() ? 'Registering…' : 'Register' }}
+        </button>
+      </div>
+    </form>
+  }
+</section>
