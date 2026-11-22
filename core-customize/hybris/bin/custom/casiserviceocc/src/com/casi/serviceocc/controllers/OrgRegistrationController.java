@@ -286,6 +286,17 @@ public class OrgRegistrationController
 		salesArea.put("Currency", Config.getString("casiserviceocc.registration.currency", "EUR"));
 		salesArea.put("CustomerPricingProcedure", "01");
 		salesArea.put("ShippingCondition", "01");
+		// Without payment terms, Incoterms and a tax classification S/4 keeps every order of the customer
+		// incomplete, so it can never be delivered (seen on BE6). The values are those of CASI Demo Company.
+		salesArea.put("CustomerPaymentTerms", Config.getString("casiserviceocc.registration.paymentTerms", "0001"));
+		salesArea.put("IncotermsClassification", Config.getString("casiserviceocc.registration.incoterms", "EXW"));
+		salesArea.put("IncotermsTransferLocation", Config.getString("casiserviceocc.registration.incotermsLocation", "Walldorf"));
+		salesArea.put("IncotermsLocation1", Config.getString("casiserviceocc.registration.incotermsLocation", "Walldorf"));
+		final Map<String, Object> tax = new LinkedHashMap<>();
+		tax.put("DepartureCountry", Config.getString("casiserviceocc.registration.taxCountry", "DE"));
+		tax.put("CustomerTaxCategory", "TTX1");
+		tax.put("CustomerTaxClassification", Config.getString("casiserviceocc.registration.taxClassification", "1"));
+		salesArea.put("to_SalesAreaTax", List.of(tax));
 		final Map<String, Object> company = new LinkedHashMap<>();
 		company.put("BusinessPartnerCategory", "2");
 		company.put("OrganizationBPName1", data.companyName);
