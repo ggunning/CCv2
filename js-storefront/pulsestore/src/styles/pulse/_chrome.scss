@@ -293,6 +293,36 @@ body.pulse {
     }
   }
 
+  // Desktop: the menu has its own full-width row under the logo row, and its pills wrap instead of being
+  // clipped. Next to the logo, search, sign-in and cart it got only the leftover width: at 1024px a
+  // few pixels, and a long menu (tgymshark-pulse, 8 entries) lost most of its pills even at 1280px.
+  // The clipped pills were simply hidden, with no hamburger above 991px to reach them.
+  @media (min-width: 992px) {
+    cx-storefront > header cx-page-layout.header {
+      grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+
+      > .SearchBox {
+        justify-content: flex-end;
+      }
+
+      > .NavigationBar {
+        grid-row: 3;
+        grid-column: 1 / -1;
+        min-height: 0;
+        padding-block: 2px 8px;
+      }
+    }
+
+    header cx-page-slot.NavigationBar cx-navigation-ui.flyout > nav > ul {
+      max-height: none;
+      overflow: visible;
+    }
+
+    cx-searchbox {
+      max-width: 360px;
+    }
+  }
+
   // ---------------------------------------------------------------- search
   header cx-page-slot.SearchBox {
     margin: 0;
