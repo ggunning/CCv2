@@ -64,18 +64,22 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * Steps 1 and 2 must work; a failure in 3 or 4 does not undo them: the answer lists every step with
  * what happened, and "complete" says whether all of them worked.
  *
- * The endpoint is public: a visitor has no session. The person who registers a new company becomes its
- * administrator in the shop (b2badmingroup: My Company, where the company's users are managed). A person
- * who joins a company that already exists in S/4 gets a disabled login: a VAT ID is public, and the login
- * shows that company's tickets and documents. The company's administrator enables it under My Company >
- * Users (which sets the user active and the login enabled); so colleagues are invited by letting them
- * register with the company's VAT ID. Backoffice (User > Customers) works as well.
+ * The endpoint is public: a visitor has no session. It only sets a company up; everything after that is
+ * Commerce's own organization management (My Account > My Company):
+ *  - The person who registers a company becomes its administrator in the shop (b2badmingroup) and adds
+ *    colleagues, roles, units, cost centers and purchase limits under My Company.
+ *  - Once a company has an administrator, nobody else can register for it here: the answer is 409 and says
+ *    to ask the administrator (a VAT ID is public, and a login shows the company's tickets and documents).
+ *  - A company that S/4 already knows but that has no administrator in the shop yet gets its first one
+ *    here, with a login that stays disabled until someone enables it in Backoffice (User > Customers).
  */
 @Controller
 @RequestMapping(value = "/{baseSiteId}/orgregistrations")
 public class OrgRegistrationController
 {
 	private static final String BP_DESTINATION = "casiBusinessPartnerDestination";
+	/** Commerce's company administrators: they see My Company and manage the company's users. */
+	private static final String ADMIN_GROUP = "b2badmingroup";
 	private static final Pattern EMAIL = Pattern.compile("[A-Za-z0-9._%+\\-]{1,64}@[A-Za-z0-9.\\-]{1,180}\\.[A-Za-z]{2,24}");
 	private static final Pattern COUNTRY = Pattern.compile("[A-Z]{2}");
 	private static final Pattern VAT_ID = Pattern.compile("[A-Z]{2}[0-9A-Z]{2,13}");
@@ -203,7 +207,7 @@ public class OrgRegistrationController
 			final Map<String, Object> body = new LinkedHashMap<>();
 			body.put("company", company);
 			body.put("email", data.email);
-			// Joining an existing company needs its administrator's approval; see the class comment.
+			// A company S/4 already knew waits for our approval of its first administrator; see the class comment.
 			body.put("loginEnabled", newCompany);
 			// A new company waits for approval in S/4; for an existing one, the banner reads its state.
 			body.put("approvalPending", newCompany);
@@ -421,16 +425,18 @@ public class OrgRegistrationController
 		else
 		{
 			unit = units.get(0);
+			if (hasAdministrator(unit))
+			{
+				throw new SscException(409, "Your company is already registered in the shop. Please ask your company's"
+						+ " administrator to add you: My Account > My Company > Users");
+			}
 		}
 
 		final Set<PrincipalGroupModel> groups = new HashSet<>();
 		groups.add(unit);
 		groups.add(userService.getUserGroupForUID("b2bcustomergroup"));
-		if (newCompany)
-		{
-			// Whoever registers the company manages it: My Company, where colleagues are enabled.
-			groups.add(userService.getUserGroupForUID("b2badmingroup"));
-		}
+		// The company's first user manages it (My Company); a company that has an administrator was refused above.
+		groups.add(userService.getUserGroupForUID(ADMIN_GROUP));
 		final B2BCustomerModel customer = modelService.create(B2BCustomerModel.class);
 		customer.setUid(data.email);
 		customer.setOriginalUid(data.email);
@@ -438,15 +444,41 @@ public class OrgRegistrationController
 		customer.setName(data.firstName + " " + data.lastName);
 		customer.setDefaultB2BUnit(unit);
 		customer.setGroups(groups);
-		// A colleague who joins is inactive and cannot sign in until the company's administrator enables the
-		// user under My Company > Users (enableCustomer sets active and clears loginDisabled).
-		customer.setActive(Boolean.valueOf(newCompany));
+		customer.setActive(Boolean.TRUE);
+		// A company S/4 already knew: its first administrator waits until someone enables the login in Backoffice.
 		customer.setLoginDisabled(!newCompany);
 		modelService.save(customer);
 		userService.setPassword(customer, data.password, "argon2");
 		modelService.save(customer);
-		return (newUnit ? "Company " + customerNumber + " and user " : "User ") + data.email + " created"
-				+ (newCompany ? " as the company's administrator" : ", sign-in waits for the company's administrator");
+		return (newUnit ? "Company " + customerNumber + " and user " : "User ") + data.email
+				+ " created as the company's administrator" + (newCompany ? "" : ", sign-in waits for our approval");
+	}
+
+	/** True when a user of the unit who can sign in is a company administrator. */
+	private static boolean hasAdministrator(final B2BUnitModel unit)
+	{
+		if (unit.getMembers() == null)
+		{
+			return false;
+		}
+		for (final Object member : unit.getMembers())
+		{
+			if (member instanceof B2BCustomerModel)
+			{
+				final B2BCustomerModel user = (B2BCustomerModel) member;
+				if (Boolean.TRUE.equals(user.getActive()) && !user.isLoginDisabled() && user.getGroups() != null)
+				{
+					for (final PrincipalGroupModel group : user.getGroups())
+					{
+						if (ADMIN_GROUP.equals(group.getUid()))
+						{
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	/** The account (when Sales and Service Cloud does not have it yet) and the contact person. */

@@ -156,13 +156,17 @@ company by removing both blocks in S/4 (Manage Customer Master Data). Until then
 BE6 has no order block reasons, and a central business partner block does not stop orders, so these two
 blocks are the approval. The codes are settings (`casiserviceocc.registration.deliveryBlock` / `billingBlock`).
 
-The endpoint is public. The first person of a new company can sign in at once and is the company's
-  administrator in the shop (`b2badmingroup`), so My Account > My Company is theirs. Someone who joins a
-  company that already exists in S/4 gets an inactive user with a disabled login: a VAT ID is public, and
-  the login shows that company's tickets and documents. The company's administrator enables the user under
-  My Company > Users; that is how colleagues are invited (they register with the company's VAT ID and
-  choose their own password). Backoffice (User > Customers > Login disabled) works as well. My Company's own
-  "Add user" needs outgoing mail for the set-password message, which the CCv2 environments here do not have.
+The endpoint is public and only sets a company up; after that the company is managed with Commerce's own
+  organization management. The first person of a new company can sign in at once and is the company's
+  administrator in the shop (`b2badmingroup`): under My Account > My Company they add colleagues and manage
+  roles, units, cost centers and purchase limits. Once a company has an administrator, nobody else can
+  register for it (HTTP 409, "ask your company's administrator"): a VAT ID is public, and a login shows that
+  company's tickets and documents. A company that S/4 already knows but that has no administrator in the
+  shop gets its first one through the form, with a login that stays disabled until it is enabled in
+  Backoffice (User > Customers > Login disabled).
+  A colleague added under My Company > Users sets a password with "Forgot password", which needs outgoing
+  mail (`mail.smtp.*` on the environment); without it someone has to set the password in Backoffice. Such a
+  colleague exists in Commerce only: no contact person is created in S/4 or Sales and Service Cloud.
 
 Needs: destination `casiBusinessPartnerDestination` (`06`), i.e. write access to `API_BUSINESS_PARTNER`
 for the S/4 communication user (SAP_COM_0008), and the Sales and Service Cloud destination (`12`).

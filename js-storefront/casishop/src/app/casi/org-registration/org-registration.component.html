@@ -7,16 +7,15 @@
       @if (result.company.isNew) {
         {{ result.company.name }} is customer <strong>{{ result.company.number }}</strong>. You can sign in now with
         {{ result.email }} and the password you chose. You are the company's administrator: under My Account &gt; My
-        Company you manage its users. Colleagues join by registering with your company's VAT ID, and you enable
-        them there.
+        Company you add your colleagues and manage their roles, units, cost centers and purchase limits.
         @if (result.approvalPending) {
           We still check new companies: you can order and open service tickets right away, and we deliver and
           invoice once your company is confirmed.
         }
       } @else {
-        Your company is already our customer <strong>{{ result.company.number }}</strong>. New colleagues are confirmed
-        before they can see its orders and tickets: you can sign in with {{ result.email }} as soon as your company's
-        administrator has enabled you (My Account &gt; My Company &gt; Users).
+        Your company is already our customer <strong>{{ result.company.number }}</strong>, and you are its first user in
+        the shop, so you will be its administrator. We confirm that first: you can sign in with {{ result.email }} as
+        soon as we have confirmed you.
       }
     </p>
 
