@@ -156,9 +156,13 @@ company by removing both blocks in S/4 (Manage Customer Master Data). Until then
 BE6 has no order block reasons, and a central business partner block does not stop orders, so these two
 blocks are the approval. The codes are settings (`casiserviceocc.registration.deliveryBlock` / `billingBlock`).
 
-The endpoint is public. Someone who joins a company that already exists in S/4 gets a login that stays disabled until it is
-  enabled in Backoffice (User > Customers > Login disabled): a VAT ID is public, and the login shows
-  that company's tickets and documents. The first person of a new company can sign in at once.
+The endpoint is public. The first person of a new company can sign in at once and is the company's
+  administrator in the shop (`b2badmingroup`), so My Account > My Company is theirs. Someone who joins a
+  company that already exists in S/4 gets an inactive user with a disabled login: a VAT ID is public, and
+  the login shows that company's tickets and documents. The company's administrator enables the user under
+  My Company > Users; that is how colleagues are invited (they register with the company's VAT ID and
+  choose their own password). Backoffice (User > Customers > Login disabled) works as well. My Company's own
+  "Add user" needs outgoing mail for the set-password message, which the CCv2 environments here do not have.
 
 Needs: destination `casiBusinessPartnerDestination` (`06`), i.e. write access to `API_BUSINESS_PARTNER`
 for the S/4 communication user (SAP_COM_0008), and the Sales and Service Cloud destination (`12`).

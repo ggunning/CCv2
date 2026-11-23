@@ -64,9 +64,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * Steps 1 and 2 must work; a failure in 3 or 4 does not undo them: the answer lists every step with
  * what happened, and "complete" says whether all of them worked.
  *
- * The endpoint is public: a visitor has no session. A person who joins a company
- * that already exists in S/4 gets a login that stays disabled until someone enables it in Backoffice:
- * a VAT ID is public, and the login shows that company's tickets and documents.
+ * The endpoint is public: a visitor has no session. The person who registers a new company becomes its
+ * administrator in the shop (b2badmingroup: My Company, where the company's users are managed). A person
+ * who joins a company that already exists in S/4 gets a disabled login: a VAT ID is public, and the login
+ * shows that company's tickets and documents. The company's administrator enables it under My Company >
+ * Users (which sets the user active and the login enabled); so colleagues are invited by letting them
+ * register with the company's VAT ID. Backoffice (User > Customers) works as well.
  */
 @Controller
 @RequestMapping(value = "/{baseSiteId}/orgregistrations")
@@ -200,7 +203,7 @@ public class OrgRegistrationController
 			final Map<String, Object> body = new LinkedHashMap<>();
 			body.put("company", company);
 			body.put("email", data.email);
-			// Joining an existing company needs someone's approval; see the class comment.
+			// Joining an existing company needs its administrator's approval; see the class comment.
 			body.put("loginEnabled", newCompany);
 			// A new company waits for approval in S/4; for an existing one, the banner reads its state.
 			body.put("approvalPending", newCompany);
@@ -423,6 +426,11 @@ public class OrgRegistrationController
 		final Set<PrincipalGroupModel> groups = new HashSet<>();
 		groups.add(unit);
 		groups.add(userService.getUserGroupForUID("b2bcustomergroup"));
+		if (newCompany)
+		{
+			// Whoever registers the company manages it: My Company, where colleagues are enabled.
+			groups.add(userService.getUserGroupForUID("b2badmingroup"));
+		}
 		final B2BCustomerModel customer = modelService.create(B2BCustomerModel.class);
 		customer.setUid(data.email);
 		customer.setOriginalUid(data.email);
@@ -430,13 +438,15 @@ public class OrgRegistrationController
 		customer.setName(data.firstName + " " + data.lastName);
 		customer.setDefaultB2BUnit(unit);
 		customer.setGroups(groups);
-		customer.setActive(Boolean.TRUE);
+		// A colleague who joins is inactive and cannot sign in until the company's administrator enables the
+		// user under My Company > Users (enableCustomer sets active and clears loginDisabled).
+		customer.setActive(Boolean.valueOf(newCompany));
 		customer.setLoginDisabled(!newCompany);
 		modelService.save(customer);
 		userService.setPassword(customer, data.password, "argon2");
 		modelService.save(customer);
 		return (newUnit ? "Company " + customerNumber + " and user " : "User ") + data.email + " created"
-				+ (newCompany ? "" : ", sign-in waits for approval");
+				+ (newCompany ? " as the company's administrator" : ", sign-in waits for the company's administrator");
 	}
 
 	/** The account (when Sales and Service Cloud does not have it yet) and the contact person. */
