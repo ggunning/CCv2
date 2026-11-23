@@ -80,6 +80,7 @@ import { ProductConfiguratorFeatureModule } from './features/product-configurato
 import { S4omFeatureModule } from './features/s4om/s4om-feature.module';
 import { RequestedDeliveryDateFeatureModule } from './features/requested-delivery-date/requested-delivery-date-feature.module';
 import { PdfInvoicesFeatureModule } from './features/pdf-invoices/pdf-invoices-feature.module';
+import { CasiBundleModule } from '../casi/casi-bundle.module';
 import { CasiReturnsModule } from '../casi/casi-returns.module';
 import { CasiTicketsModule } from '../casi/casi-tickets.module';
 
@@ -169,6 +170,8 @@ import { CasiTicketsModule } from '../casi/casi-tickets.module';
     // they take the place of Commerce's own tickets (@spartacus/customer-ticketing). The module also has the
     // company registration, which takes the place of Spartacus' organization user registration.
     CasiTicketsModule,
+    // Plan picker on the product page of products sold as a configurable bundle
+    CasiBundleModule,
   ],
   providers: [
     provideFeatureToggles({

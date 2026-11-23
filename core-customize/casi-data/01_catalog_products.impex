@@ -42,17 +42,33 @@ INSERT_UPDATE CategoryCategoryRelation;source(code,$cvOnline)[unique=true];targe
 INSERT_UPDATE Product;code[unique=true];name[lang=$lang];summary[lang=$lang];description[lang=$lang];unit(code);approvalStatus(code);supercategories(code,$cvStaged);ean;$cvStaged
 ;CASI-ONTOLOGY;Basic Ontology;A ready-to-use business ontology on physical media.;"The Basic Ontology gives your team a shared vocabulary for customers, products, orders and returns: classes, relations and example data, delivered as a boxed set with printed reference and USB media.";pieces;approved;casi-all,casi-ontologies;4260000000011
 ;CASI-ONTOLOGY-PLAN;Basic Ontology Service Plan (1 year);Updates and expert support for the Basic Ontology.;"One year of quarterly ontology updates, schema change notes and expert support by e-mail for your Basic Ontology.";pieces;approved;casi-all,casi-services;4260000000028
+;CASI-ONTOLOGY-ADV;Advanced Ontology;The full enterprise ontology on physical media, sold with a service plan.;"The Advanced Ontology extends the Basic Ontology to the whole enterprise: finance, supply chain, service and workforce classes, cross-domain relations, validation rules and worked example data, delivered as a boxed set with printed reference and USB media. It is sold as a bundle with one Advanced Ontology service plan: Basic, Standard or Premium.";pieces;approved;casi-all,casi-ontologies;4260000000035
+;CASI-ADV-PLAN-BAS;Advanced Ontology Service Plan - Basic (1 year);Quarterly updates and e-mail support for the Advanced Ontology.;"One year of quarterly ontology updates, schema change notes and expert support by e-mail for your Advanced Ontology.";pieces;approved;casi-all,casi-services;4260000000042
+;CASI-ADV-PLAN-STD;Advanced Ontology Service Plan - Standard (1 year);Monthly updates and next-business-day support for the Advanced Ontology.;"One year of monthly ontology updates, schema change notes, expert support by e-mail and phone with a next-business-day response, and two modelling workshops for your Advanced Ontology.";pieces;approved;casi-all,casi-services;4260000000059
+;CASI-ADV-PLAN-PRM;Advanced Ontology Service Plan - Premium (1 year);Continuous updates and a named expert for the Advanced Ontology.;"One year of continuous ontology updates, a named ontology expert, same-day support, custom extensions to your model and quarterly on-site reviews for your Advanced Ontology.";pieces;approved;casi-all,casi-services;4260000000066
 
 INSERT_UPDATE Product;code[unique=true];name[lang=$lang];summary[lang=$lang];description[lang=$lang];unit(code);approvalStatus(code);supercategories(code,$cvOnline);ean;$cvOnline
 ;CASI-ONTOLOGY;Basic Ontology;A ready-to-use business ontology on physical media.;"The Basic Ontology gives your team a shared vocabulary for customers, products, orders and returns: classes, relations and example data, delivered as a boxed set with printed reference and USB media.";pieces;approved;casi-all,casi-ontologies;4260000000011
 ;CASI-ONTOLOGY-PLAN;Basic Ontology Service Plan (1 year);Updates and expert support for the Basic Ontology.;"One year of quarterly ontology updates, schema change notes and expert support by e-mail for your Basic Ontology.";pieces;approved;casi-all,casi-services;4260000000028
+;CASI-ONTOLOGY-ADV;Advanced Ontology;The full enterprise ontology on physical media, sold with a service plan.;"The Advanced Ontology extends the Basic Ontology to the whole enterprise: finance, supply chain, service and workforce classes, cross-domain relations, validation rules and worked example data, delivered as a boxed set with printed reference and USB media. It is sold as a bundle with one Advanced Ontology service plan: Basic, Standard or Premium.";pieces;approved;casi-all,casi-ontologies;4260000000035
+;CASI-ADV-PLAN-BAS;Advanced Ontology Service Plan - Basic (1 year);Quarterly updates and e-mail support for the Advanced Ontology.;"One year of quarterly ontology updates, schema change notes and expert support by e-mail for your Advanced Ontology.";pieces;approved;casi-all,casi-services;4260000000042
+;CASI-ADV-PLAN-STD;Advanced Ontology Service Plan - Standard (1 year);Monthly updates and next-business-day support for the Advanced Ontology.;"One year of monthly ontology updates, schema change notes, expert support by e-mail and phone with a next-business-day response, and two modelling workshops for your Advanced Ontology.";pieces;approved;casi-all,casi-services;4260000000059
+;CASI-ADV-PLAN-PRM;Advanced Ontology Service Plan - Premium (1 year);Continuous updates and a named expert for the Advanced Ontology.;"One year of continuous ontology updates, a named ontology expert, same-day support, custom extensions to your model and quarterly on-site reviews for your Advanced Ontology.";pieces;approved;casi-all,casi-services;4260000000066
 
 # --- prices (B2B store is net) --------------------------------------------
 INSERT_UPDATE PriceRow;productId[unique=true];currency(isocode)[unique=true];price;unit(code[default=pieces]);net[default=true];minqtd[default=1]
-;CASI-ONTOLOGY;EUR;990
-;CASI-ONTOLOGY-PLAN;EUR;240
+;CASI-ONTOLOGY;EUR;55000
+;CASI-ONTOLOGY-PLAN;EUR;20000
+;CASI-ONTOLOGY-ADV;EUR;99000
+;CASI-ADV-PLAN-BAS;EUR;20000
+;CASI-ADV-PLAN-STD;EUR;40000
+;CASI-ADV-PLAN-PRM;EUR;88000
 
-# --- stock (the plan is a service: give it a large available amount) -------
+# --- stock (the plans are services: give them a large available amount) ----
 INSERT_UPDATE StockLevel;productCode[unique=true];warehouse(code)[unique=true];available;inStockStatus(code)
 ;CASI-ONTOLOGY;casi_warehouse;500;notSpecified
 ;CASI-ONTOLOGY-PLAN;casi_warehouse;99999;forceInStock
+;CASI-ONTOLOGY-ADV;casi_warehouse;500;notSpecified
+;CASI-ADV-PLAN-BAS;casi_warehouse;99999;forceInStock
+;CASI-ADV-PLAN-STD;casi_warehouse;99999;forceInStock
+;CASI-ADV-PLAN-PRM;casi_warehouse;99999;forceInStock

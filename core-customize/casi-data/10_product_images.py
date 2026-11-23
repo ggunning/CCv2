@@ -1,4 +1,4 @@
-"""CASI Shop - product pictures "CASI Ontologie" and "CASI Helping Hands Service".
+"""CASI Shop - product pictures "CASI Ontologie", "CASI Helping Hands Service" and the Advanced Ontology set.
 
 Draws one SVG per product per Commerce image format (1200Wx1200H superZoom, 515Wx515H zoom,
 300Wx300H product, 96Wx96H thumbnail, 65Wx65H cartIcon, 30Wx30H styleSwatch). Each file has the
@@ -162,16 +162,40 @@ def ontology_glyph(tier: str) -> str:
     return "".join(out)
 
 
-def ontology(fmt: str) -> str:
+def orbit(tier: str) -> str:
+    """The Advanced Ontology's mark: an amber orbit around the graph with satellite classes on it."""
+    if tier == "XS":
+        return ""
+    sw = {"L": 10, "M": 12, "S": 20}[tier]
+    out = [f'<circle cx="{HUB[0]}" cy="{HUB[1]}" r="455" fill="none" stroke="{AMBER}" stroke-width="{sw}" '
+           f'stroke-dasharray="{sw * 3} {sw * 2}"/>']
+    for k in range(6):
+        a = math.radians(k * 60)
+        x, y = HUB[0] + math.cos(a) * 455, HUB[1] + math.sin(a) * 455
+        out.append(f'<circle cx="{x:.0f}" cy="{y:.0f}" r="{sw * 2.6:.0f}" fill="{AMBER}" stroke="{INK}" stroke-width="{sw * 0.7:.0f}"/>')
+    return "".join(out)
+
+
+def ontology(fmt: str, title: str = "CASI Ontologie",
+             sub: str = "Basic Ontology · customers, products, orders, returns", advanced: bool = False) -> str:
     tier = FORMATS[fmt]
-    defs, body = background(tier, MIST, PAPER, dots=True)
+    defs, body = background(tier, "#bcd6dd" if advanced else MIST, PAPER, dots=True)
+    glyph = ontology_glyph(tier)
+    if advanced:
+        # the same graph, drawn smaller inside its orbit
+        glyph = orbit(tier) + f'<g transform="translate({HUB[0]} {HUB[1]}) scale(0.8) translate({-HUB[0]} {-HUB[1]})">{glyph}</g>'
     if tier in ("S", "XS"):
         # icons: centre the glyph in the crop
-        body += f'<g transform="translate(0 70)">{ontology_glyph(tier)}</g>'
+        body += f'<g transform="translate(0 70)">{glyph}</g>'
     else:
-        body += ontology_glyph(tier)
-    body += caption(tier, "CASI Ontologie", "Basic Ontology · customers, products, orders, returns")
-    return svg(fmt, "CASI Ontologie", body, defs)
+        body += glyph
+    body += caption(tier, title, sub)
+    return svg(fmt, title, body, defs)
+
+
+def advanced_ontology(fmt: str) -> str:
+    return ontology(fmt, "CASI Ontologie Advanced", "Advanced Ontology · the full enterprise model, with a service plan",
+                    advanced=True)
 
 
 # --- CASI Helping Hands Service -----------------------------------------------------------
@@ -252,22 +276,44 @@ def badge(tier: str) -> str:
             f'letter-spacing="4" fill="{INK}">YEAR</text>')
 
 
-def helping_hands(fmt: str) -> str:
+def pips(tier: str, level: int) -> str:
+    """Service level of an Advanced Ontology plan: 1-3 filled dots out of three."""
+    if not level or tier == "XS":
+        return ""
+    x0, y, r, step, sw = (150, 190, 40, 110, 10) if tier in ("L", "M") else (250, 190, 50, 130, 16)
+    return "".join(f'<circle cx="{x0 + i * step}" cy="{y}" r="{r}" fill="{AMBER if i < level else WHITE}" '
+                   f'stroke="{INK}" stroke-width="{sw}"/>' for i in range(3))
+
+
+def helping_hands(fmt: str, title: str = "CASI Helping Hands Service",
+                  sub: str = "1-year service plan · ontology updates and expert support", level: int = 0) -> str:
     tier = FORMATS[fmt]
-    defs, body = background(tier, "#d5e6ea", PAPER, dots=False)
+    defs, body = background(tier, "#bcd6dd" if level else "#d5e6ea", PAPER, dots=False)
     # the held graph sits low and the hands come up to meet it
     glyph = f'<g transform="translate(0 30)">{held_graph(tier)}</g><g transform="translate(0 -30)">{hands(tier)}</g>'
     if tier in ("S", "XS"):
         body += f'<g transform="translate(0 -40)">{glyph}</g>'
     else:
         body += glyph + badge(tier)
-    body += caption(tier, "CASI Helping Hands Service", "1-year service plan · ontology updates and expert support")
-    return svg(fmt, "CASI Helping Hands Service", body, defs)
+    body += pips(tier, level)
+    body += caption(tier, title, sub)
+    return svg(fmt, title, body, defs)
+
+
+def plan(level: int, name: str, sub: str):
+    return lambda fmt: helping_hands(fmt, f"Helping Hands {name}", sub, level)
 
 
 PRODUCTS = {  # product code -> (file stem, picture name, drawing)
     "CASI-ONTOLOGY": ("casi-ontologie", "CASI Ontologie", ontology),
     "CASI-ONTOLOGY-PLAN": ("casi-helping-hands-service", "CASI Helping Hands Service", helping_hands),
+    "CASI-ONTOLOGY-ADV": ("casi-ontologie-advanced", "CASI Ontologie Advanced", advanced_ontology),
+    "CASI-ADV-PLAN-BAS": ("casi-helping-hands-basic", "CASI Helping Hands Basic",
+                          plan(1, "Basic", "1-year plan · quarterly updates and e-mail support")),
+    "CASI-ADV-PLAN-STD": ("casi-helping-hands-standard", "CASI Helping Hands Standard",
+                          plan(2, "Standard", "1-year plan · monthly updates and next-day support")),
+    "CASI-ADV-PLAN-PRM": ("casi-helping-hands-premium", "CASI Helping Hands Premium",
+                          plan(3, "Premium", "1-year plan · continuous updates and a named expert")),
 }
 
 
