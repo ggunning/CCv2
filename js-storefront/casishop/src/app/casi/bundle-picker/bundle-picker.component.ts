@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, InjectionToken, computed, inject, s
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { ActiveCartFacade } from '@spartacus/cart/base/root';
-import { OCC_USER_ID_ANONYMOUS, OccEndpointsService, Product, UrlModule, UserIdService } from '@spartacus/core';
+import { OCC_USER_ID_ANONYMOUS, OccEndpointsService, Product, RoutingService, UrlModule, UserIdService } from '@spartacus/core';
 import { CurrentProductService } from '@spartacus/storefront';
 import { firstValueFrom, of } from 'rxjs';
 import { catchError, distinctUntilChanged, map, switchMap, take } from 'rxjs/operators';
@@ -13,9 +13,24 @@ import { catchError, distinctUntilChanged, map, switchMap, take } from 'rxjs/ope
  * starts. OCC does not return a product's bundle templates, so the shop has to be told. The templates are
  * created by core-customize/casi-data/16_advanced_bundle.groovy.
  */
-export const CASI_BUNDLES = new InjectionToken<Record<string, { templateId: string }>>('CASI_BUNDLES', {
+export const CASI_BUNDLES = new InjectionToken<Record<string, CasiBundle>>('CASI_BUNDLES', {
   factory: () => ({}),
 });
+
+/**
+ * templateId: the bundle component the product starts. onlyInBundle: products that are sold with this
+ * product only (its plans): the shop offers no add-to-cart for them and points to this product instead.
+ * Commerce itself still accepts them as ordinary cart entries; this is about what the shop offers.
+ */
+export interface CasiBundle {
+  templateId: string;
+  onlyInBundle?: string[];
+}
+
+/** The product (code) a product is sold with only, if any. */
+export function casiBundleOf(bundles: Record<string, CasiBundle>, code: string | undefined): string | null {
+  return (code && Object.keys(bundles).find((main) => bundles[main].onlyInBundle?.includes(code))) || null;
+}
 
 interface Plan {
   code: string;
@@ -27,7 +42,7 @@ interface Plan {
 
 interface EntryGroup {
   entryGroupNumber: number;
-  entries?: unknown[];
+  entries?: { entryNumber?: number }[];
   entryGroups?: EntryGroup[];
 }
 
@@ -98,6 +113,7 @@ export class CasiBundlePickerComponent {
   private readonly userIdService = inject(UserIdService);
   private readonly activeCart = inject(ActiveCartFacade);
   private readonly bundles = inject(CASI_BUNDLES);
+  private readonly routing = inject(RoutingService);
 
   readonly selected = signal<string | null>(null);
   readonly busy = signal(false);
@@ -171,7 +187,7 @@ export class CasiBundlePickerComponent {
       const urlParams = { userId, cartId };
 
       const started = await firstValueFrom(
-        this.http.post<{ entry?: { entryGroupNumbers?: number[] } }>(this.occ.buildUrl('casiCartBundles', { urlParams }), {
+        this.http.post<{ entry?: { entryNumber?: number } }>(this.occ.buildUrl('casiCartBundles', { urlParams }), {
           templateId: bundle.templateId,
           productCode: bundle.product.code,
           quantity: 1,
@@ -180,14 +196,14 @@ export class CasiBundlePickerComponent {
       const groups = await firstValueFrom(
         this.http.get<{ entryGroups?: EntryGroup[] }>(this.occ.buildUrl('casiCartEntryGroups', { urlParams })),
       );
-      // the bundle just started: the root group whose component holds the new entry; the plan goes
-      // into its component that is still empty
-      const mine = new Set(started.entry?.entryGroupNumbers ?? []);
-      const roots = groups.entryGroups ?? [];
-      const root =
-        roots.find((g) => (g.entryGroups ?? []).some((c) => mine.has(c.entryGroupNumber))) ??
-        [...roots].reverse().find((g) => (g.entryGroups ?? []).some((c) => !c.entries?.length));
-      const planGroup = (root?.entryGroups ?? []).find((c) => !c.entries?.length);
+      // The bundle just started is the one whose component holds the cart line that was just created; the
+      // plan goes into its other component. Not "the first empty component": a bundle that was removed
+      // from the cart leaves its groups behind, empty, and the plan would land in the old Ontology component
+      // ("is not in the product list of component 'Ontology'").
+      const line = started.entry?.entryNumber;
+      const holdsLine = (c: EntryGroup) => (c.entries ?? []).some((e) => e.entryNumber === line);
+      const root = line == null ? undefined : (groups.entryGroups ?? []).find((g) => (g.entryGroups ?? []).some(holdsLine));
+      const planGroup = (root?.entryGroups ?? []).find((c) => !holdsLine(c) && !c.entries?.length);
       if (!root || !planGroup) {
         throw new Error('The cart did not return the bundle that was just added.');
       }
@@ -208,6 +224,8 @@ export class CasiBundlePickerComponent {
         throw e;
       }
       this.added.set(plan.name);
+      // on to the cart, where the bundle shows with its plan
+      this.routing.go({ cxRoute: 'cart' });
     } catch (e) {
       const detail = e instanceof HttpErrorResponse ? e.error?.errors?.[0]?.message : e instanceof Error ? e.message : '';
       this.error.set('This could not be added to your cart.' + (detail ? ' ' + detail : ''));

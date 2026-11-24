@@ -347,8 +347,36 @@ public class OrgRegistrationController
 		relationship.put("RelationshipCategory", "BUR001");
 		relationship.put("ValidityStartDate", "/Date(" + today + ")/");
 		relationship.put("ValidityEndDate", FOREVER);
-		s4Client.post(BP_DESTINATION, "A_BPRelationship", relationship);
-		return partner;
+		final String relationshipNumber = s4Client.post(BP_DESTINATION, "A_BPRelationship", relationship)
+				.path("RelationshipNumber").asText("");
+		return partner + contactEmail(relationshipNumber, customerNumber, partner, data.email);
+	}
+
+	/**
+	 * The email address on the contact relationship itself. The person's own address has it too, but S/4 shows
+	 * a customer's contacts with the relationship's communication data, so without this the contact has no
+	 * email there. Returns "" when set, else a remark for the step: the contact exists either way.
+	 */
+	private String contactEmail(final String relationshipNumber, final String customerNumber, final String partner,
+			final String email)
+	{
+		if (relationshipNumber.isEmpty())
+		{
+			return " (email not set on the contact: S/4 returned no relationship number)";
+		}
+		try
+		{
+			// key as S/4 writes it: 9999-12-31 is FOREVER, the end date the relationship was created with
+			s4Client.patch(BP_DESTINATION, "A_BPContactToFuncAndDept(RelationshipNumber='" + SscCaseClient.encode(relationshipNumber)
+					+ "',BusinessPartnerCompany='" + SscCaseClient.encode(customerNumber) + "',BusinessPartnerPerson='"
+					+ SscCaseClient.encode(partner) + "',ValidityEndDate=datetime'9999-12-31T00%3A00%3A00')",
+					Map.of("EmailAddress", email));
+			return "";
+		}
+		catch (final RuntimeException e)
+		{
+			return " (email not set on the contact: " + e.getMessage() + ")";
+		}
 	}
 
 	private static Map<String, Object> address(final Registration data, final String email)

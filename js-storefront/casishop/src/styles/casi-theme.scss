@@ -776,6 +776,85 @@ cx-page-slot:has(.casi-bundle) cx-add-to-cart {
   display: none;
 }
 
+// The same product as an entry of a product list or grid (casi-bundle-list-action): "Bundle" and a button to
+// its product page, where the plan is chosen, instead of the entry's own add-to-cart.
+cx-product-list-item:has(.casi-bundle-list) cx-add-to-cart,
+cx-product-grid-item:has(.casi-bundle-list) cx-add-to-cart {
+  display: none;
+}
+
+// A bundle's lines in the cart (casi-bundle-cart-line): they go together. The line's own "Remove" is hidden
+// (the product's line has "Remove bundle" instead) and the quantity is fixed: Commerce refuses any other.
+.cx-item-list-row:has(.casi-bundle-line-locked) {
+  .cx-remove-btn {
+    display: none;
+  }
+
+  cx-item-counter {
+    pointer-events: none;
+
+    button {
+      display: none;
+    }
+
+    input {
+      border-color: transparent;
+      background: transparent;
+    }
+  }
+}
+
+.casi-bundle-line {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+
+  p {
+    margin: 0 0 0.35rem;
+    color: var(--cx-color-secondary);
+  }
+
+  .casi-bundle-remove {
+    padding-left: 0;
+  }
+}
+
+// the "Bundle" tag, in lists and in the cart
+.casi-bundle-line .casi-bundle-badge {
+  display: inline-block;
+  margin-right: 0.35rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--cx-color-primary);
+  color: var(--cx-color-inverse);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.casi-bundle-list {
+  margin: 0 0 0.75rem;
+
+  .casi-bundle-list-note {
+    margin: 0 0 0.6rem;
+    color: var(--cx-color-secondary);
+    font-size: 0.9rem;
+  }
+
+  .casi-bundle-badge {
+    display: inline-block;
+    margin-right: 0.35rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: var(--cx-color-primary);
+    color: var(--cx-color-inverse);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+}
+
 .casi-bundle {
   margin: 1rem 0 1.5rem;
   padding: 0 1.25rem;

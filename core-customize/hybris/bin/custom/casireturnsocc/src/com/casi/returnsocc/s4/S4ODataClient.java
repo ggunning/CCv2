@@ -63,6 +63,14 @@ public class S4ODataClient
 		return connection.send("POST", path, body);
 	}
 
+	/** PATCH a JSON body (with the CSRF handshake): changes the named fields of one entity. S/4 answers without a body. */
+	public JsonNode patch(final String destinationId, final String path, final Object body)
+	{
+		final Connection connection = new Connection(destination(destinationId));
+		connection.fetchCsrfToken();
+		return connection.send("PATCH", path, body);
+	}
+
 	private ConsumedDestinationModel destination(final String id)
 	{
 		// Only active ones: SAP S/4HANA Order Management ships inactive sample destinations with the same ids

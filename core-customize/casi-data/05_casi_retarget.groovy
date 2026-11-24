@@ -52,7 +52,12 @@ pageSlots.each { b ->
 if (!pageSlots.any { it.position == 'Section1' }) out << 'WARN: homepage has no Section1 page slot: ' + pageSlots*.position
 
 // 3. product carousels show the CASI products ---------------------------------------------
-def casiProducts = ['CASI-ONTOLOGY', 'CASI-ONTOLOGY-PLAN'].collect { productService.getProductForCode(productCv, it) }
+// The Advanced Ontology (sold as a bundle with a service plan, 16) comes first: it is the shop's best seller.
+// Its own plans are not listed: they are not sold on their own. A product that is not there yet (01 not
+// re-run) is left out instead of stopping the script.
+def casiProducts = ['CASI-ONTOLOGY-ADV', 'CASI-ONTOLOGY', 'CASI-ONTOLOGY-PLAN'].collect { code ->
+  try { productService.getProductForCode(productCv, code) } catch (e) { out << 'WARN: no product ' + code; null }
+}.findAll { it }
 inCv('ProductCarouselComponent').each { c -> c.products = casiProducts; c.categories = []; modelService.save(c) }
 out << 'product carousels -> CASI products: ' + inCv('ProductCarouselComponent').size()
 
